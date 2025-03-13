@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ live_class.title }}</h2>
+<p>{{ live_class.description }}</p>
+<p><strong>Start Time:</strong> {{ live_class.start_time }}</p>
+<p><strong>Duration:</strong> {{ live_class.duration }} minutes</p>
+<a href="{{ live_class.get_meeting_url }}" target="_blank" class="btn btn-success">Join Live Class</a>
+
+<iframe allow="camera; microphone; fullscreen; display-capture"
+        src="{{ live_class.get_meeting_url }}"
+        style="width: 100%; height: 600px; border: 0;">
+</iframe>
+
+{% endblock %}

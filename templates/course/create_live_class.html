@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Schedule a Live Class" %} | {% trans "Learning management system" %}{% endblock title %}
+
+{% block content %}
+
+<!-- Breadcrumb Navigation -->
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'user_course_list' %}">{% trans 'My Courses' %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'course_detail' slug=course.slug %}">{{ course }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{% trans 'Schedule Live Class' %}</li>
+    </ol>
+</nav>
+
+<!-- Page Header -->
+<div class="title-1">{% trans "Schedule a Live Class" %}</div>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <!-- Title -->
+    <div class="mb-3">
+        <label for="id_title">{% trans "Title" %}</label>
+        {{ form.title }}
+    </div>
+
+    <!-- Description -->
+    <div class="mb-3">
+        <label for="id_description">{% trans "Description" %}</label>
+        {{ form.description }}
+    </div>
+
+    <!-- Date Picker -->
+    <div class="mb-3">
+        <label for="id_date">{% trans "Select Date" %}</label>
+        <input type="date" name="date" id="id_date" class="form-control" required>
+    </div>
+
+    <!-- Time Picker -->
+    <div class="mb-3">
+        <label for="id_time">{% trans "Select Time" %}</label>
+        <input type="time" name="time" id="id_time" class="form-control" required>
+    </div>
+
+    <!-- Duration -->
+    <div class="mb-3">
+        <label for="id_duration">{% trans "Duration (in minutes)" %}</label>
+        {{ form.duration }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">{% trans "Create Live Class" %}</button>
+</form>
+
+
+    <!-- Display Form Errors -->
+    {% if form.errors %}
+    <div class="alert alert-danger mt-3">
+        <strong>{% trans "Form Errors:" %}</strong>
+        {{ form.errors }}
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
