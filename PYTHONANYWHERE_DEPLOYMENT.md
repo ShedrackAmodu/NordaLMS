@@ -36,7 +36,7 @@ python -m venv myenv
 source myenv/bin/activate
 
 # Install production requirements
-pip install -r requirements_production.txt
+pip install -r requirements/production.txt
 ```
 
 ## Step 4: Configure Environment Variables
@@ -60,7 +60,7 @@ STUDENT_ID_PREFIX=NDS
 LECTURER_ID_PREFIX=LEC
 ```
 
-## Step 5: Database Setup
+## Step 5: Run Deployment Command
 
 ```bash
 # Navigate to the project directory
@@ -69,11 +69,8 @@ cd ~/LearningManagementSystem/NordaLMS
 # Activate virtual environment
 source ../myenv/bin/activate
 
-# Run migrations
-python manage.py migrate
-
-# Collect static files
-python manage.py collectstatic --noinput
+# Run the deployment command (runs migrations, collects static, creates superuser, loads sample data)
+python manage.py deploy
 ```
 
 ## Step 6: Configure WSGI

@@ -28,10 +28,10 @@ SECRET_KEY = config(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=True, cast=bool)
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "127.0.0.1:8000", "LearningManagementSystem.pythonanywhere.com"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "127.0.0.1:8000", "learningmanagementsystem.pythonanywhere.com"]
 
 # CSRF trusted origins for production
-CSRF_TRUSTED_ORIGINS = ['https://LearningManagementSystem.pythonanywhere.com'] if not DEBUG else []
+CSRF_TRUSTED_ORIGINS = ['https://LearningManagementSystem.pythonanywhere.com', 'https://learningmanagementsystem.pythonanywhere.com'] if not DEBUG else []
 
 # change the default user models to our custom model
 AUTH_USER_MODEL = "accounts.User"
@@ -59,6 +59,7 @@ THIRD_PARTY_APPS = [
 
 # Custom apps
 PROJECT_APPS = [
+    "scripts",  # For custom management commands
     "core.apps.CoreConfig",
     "accounts.apps.AccountsConfig",
     "course.apps.CourseConfig",
