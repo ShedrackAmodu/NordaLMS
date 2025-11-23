@@ -457,12 +457,7 @@ def course_registration(request):
         # Calculate registered credits
         total_registered_credit = sum(course.credit for course in registered_courses)
 
-        # Debug prints
-        print("[DEBUG] Current Semester:", current_semester.semester if current_semester else "None")
-        print("[DEBUG] Student Program:", student.program)
-        print("[DEBUG] Student Level:", student.level)
-        print("[DEBUG] Courses Count:", courses.count())
-        print("[DEBUG] Registered Courses Count:", registered_courses.count())
+
 
     context = {
         "current_semester": current_semester,
@@ -487,7 +482,6 @@ def course_drop(request):
     if request.method == "POST":
         student = get_object_or_404(Student, student__pk=request.user.id)
         course_ids = request.POST.getlist("course_ids")
-        print("course_ids", course_ids)
         for course_id in course_ids:
             course = get_object_or_404(Course, pk=course_id)
             TakenCourse.objects.filter(student=student, course=course).delete()
