@@ -1,6 +1,4 @@
-"use strict";
-
-// side navigation bar
+// sidebar navigation bar
 function toggleSidebar() {
   document.getElementById("side-nav").classList.toggle("toggle-active");
   document.getElementById("main").classList.toggle("toggle-active");
@@ -80,18 +78,6 @@ function pop() {
   }
 }
 
-// const popupMessagesButtons = document.querySelectorAll('popup-btn-messages')
-
-// popupMessagesButtons.forEach(button, () => {
-//     button.addEventListener('click', () => {
-//         document.getElementById('popup-box-messages').style.display = 'none';
-//     })
-// })
-
-// const popupMessagesButtom = document.getElementById('popup-btn-messages')
-// popupMessagesButtom.addEventListener('click', () => {
-//     document.getElementById('popup-box-messages').style.display = 'none';
-// })
 // ##################################
 
 // Example starter JavaScript for disabling form submissions if there are invalid fields

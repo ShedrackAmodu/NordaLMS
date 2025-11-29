@@ -9,7 +9,7 @@ from django.template.loader import get_template, render_to_string
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 from django_filters.views import FilterView
-from xhtml2pdf import pisa
+
 
 from accounts.decorators import admin_required
 from accounts.filters import LecturerFilter, StudentFilter
@@ -32,15 +32,7 @@ from result.models import TakenCourse
 # ########################################################
 
 
-def render_to_pdf(template_name, context):
-    """Render a given template to PDF format."""
-    response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = 'filename="profile.pdf"'
-    template = render_to_string(template_name, context)
-    pdf = pisa.CreatePDF(template, dest=response)
-    if pdf.err:
-        return HttpResponse("We had some problems generating the PDF")
-    return response
+
 
 
 # ########################################################
@@ -193,9 +185,6 @@ def profile_single(request, user_id):
         )
     else:
         context["user_type"] = "Superuser"
-
-    if request.GET.get("download_pdf"):
-        return render_to_pdf("pdf/profile_single.html", context)
 
     return render(request, "accounts/profile_single.html", context)
 
@@ -357,21 +346,6 @@ def lecturer_list_view(request):
     return render(request, "accounts/lecturer_list.html", context)
 
 
-@login_required
-@admin_required
-def render_lecturer_pdf_list(request):
-    lecturers = User.objects.filter(is_lecturer=True)
-    template_path = "pdf/lecturer_list.html"
-    context = {"lecturers": lecturers}
-    response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = 'filename="lecturers_list.pdf"'
-    template = get_template(template_path)
-    html = template.render(context)
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    if pisa_status.err:
-        return HttpResponse(f"We had some errors <pre>{html}</pre>")
-    return response
-
 
 @login_required
 @admin_required
@@ -507,21 +481,6 @@ class StudentListView(FilterView):
         context["title"] = "Students"
         return context
 
-
-@login_required
-@admin_required
-def render_student_pdf_list(request):
-    students = Student.objects.all()
-    template_path = "pdf/student_list.html"
-    context = {"students": students}
-    response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = 'filename="students_list.pdf"'
-    template = get_template(template_path)
-    html = template.render(context)
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    if pisa_status.err:
-        return HttpResponse(f"We had some errors <pre>{html}</pre>")
-    return response
 
 
 @login_required
