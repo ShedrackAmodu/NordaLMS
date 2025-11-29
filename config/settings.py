@@ -11,8 +11,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY & DEPLOYMENT SETTINGS
 # ============================================================================
 
-SECRET_KEY = "django-insecure-!0h^#s-!f#mm3z&k72^dwq*y-uh8x0f#s=g!gzp!4rc5mbk9-5"
-DEBUG = True
+SECRET_KEY = os.environ.get('SECRET_KEY', "django-insecure-!0h^#s-!f#mm3z&k72^dwq*y-uh8x0f#s=g!gzp!4rc5mbk9-5")
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = [
     "LearningManagementSystem.pythonanywhere.com",
@@ -150,12 +150,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 # ============================================================================
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "piloteaglecrown@gmail.com"
-EMAIL_HOST_PASSWORD = "ugnporqmpdkjytof"
-EMAIL_FROM_ADDRESS = "NordaLMS <noreply@LearningManagementSystem.pythonanywhere.com>"
+EMAIL_HOST = os.environ.get('EMAIL_HOST', "smtp.gmail.com")
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', "piloteaglecrown@gmail.com")
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', "ugnporqmpdkjytof")
+EMAIL_FROM_ADDRESS = os.environ.get('EMAIL_FROM_ADDRESS', "NordaLMS <noreply@LearningManagementSystem.pythonanywhere.com>")
 
 # ============================================================================
 # SECURITY SETTINGS
@@ -225,5 +225,5 @@ SEMESTER_CHOICES = (
 # AI QUIZ SETTINGS
 # ============================================================================
 
-GROQ_API_KEY = "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"
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY', "")
 # GEMINI_API_KEY = "AIzaSyD9KBM1Z-mjvmdEijUcqcwQp4G73OUIDhw"  # Keep as backup
