@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}API Documentation | NexusLMS{% endblock %}
+
+{% block content %}
+<section class="api-hero" style="background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%); color: white; padding: 120px 0 80px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center" data-aos="fade-up">
+                <h1 class="display-4 fw-bold mb-4">API Documentation</h1>
+                <p class="lead mb-4">Integrate NexusLMS with your systems using our comprehensive REST API</p>
+                <div class="badge bg-light text-primary p-2 mb-3">REST API • JSON • OAuth 2.0</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="api-content py-5" style="padding: 100px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 mb-4" data-aos="fade-right">
+                <div class="api-sidebar sticky-top" style="top: 100px;">
+                    <h5 class="fw-bold mb-3">API Reference</h5>
+                    <div class="list-group list-group-flush">
+                        <a href="#authentication" class="list-group-item list-group-item-action">Authentication</a>
+                        <a href="#users" class="list-group-item list-group-item-action">Users</a>
+                        <a href="#courses" class="list-group-item list-group-item-action">Courses</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-9" data-aos="fade-left">
+                <section id="authentication" class="api-section mb-5">
+                    <h2 class="fw-bold mb-4">Authentication</h2>
+                    <p class="lead mb-4">NexusLMS API uses OAuth 2.0 for authentication. You'll need to obtain an access token to make API requests.</p>
+                    <div class="card mb-4">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">Get Access Token</h5>
+                        </div>
+                        <div class="card-body">
+                            <pre class="bg-light p-3 rounded"><code>POST /oauth/token
+Content-Type: application/json
+
+{
+  "grant_type": "client_credentials",
+  "client_id": "your_client_id",
+  "client_secret": "your_client_secret",
+  "scope": "read write"
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+                <section class="api-section">
+                    <h2 class="fw-bold mb-4">Getting Started</h2>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Quick Start Guide</h5>
+                            <ol>
+                                <li>Obtain API credentials from your institution administrator</li>
+                                <li>Authenticate using OAuth 2.0 client credentials flow</li>
+                                <li>Make your first API request to verify connectivity</li>
+                            </ol>
+                            <div class="alert alert-info">
+                                <strong>Note:</strong> API access is available on Professional and Enterprise plans.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

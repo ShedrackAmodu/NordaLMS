@@ -14,6 +14,12 @@ urlpatterns = [
     path("<int:pk>/course/add/", views.course_add, name="course_add"),
     path("course/<slug>/edit/", views.course_edit, name="edit_course"),
     path("course/delete/<slug>/", views.course_delete, name="delete_course"),
+    # Course Admin Panel
+    path("course/list/", views.course_list_view, name="course_list"),
+    path("course/admin/add/", views.course_add_admin, name="course_add_admin"),
+    path("course/admin/<slug>/edit/", views.course_edit_admin, name="course_edit_admin"),
+    path("course/admin/<slug>/delete/", views.course_delete_admin, name="course_delete_admin"),
+    path("course/admin/<slug>/history/", views.course_history, name="course_history"),
     # CourseAllocation urls
     path(
         "course/assign/",
@@ -73,6 +79,7 @@ urlpatterns = [
     # course registration
     path("course/registration/", views.course_registration, name="course_registration"),
     path("course/drop/", views.course_drop, name="course_drop"),
+    path("department/add_drop/", views.department_add_drop, name="department_add_drop"),
     path("my_courses/", views.user_course_list, name="user_course_list"),
     path("<slug:slug>/discussion/", views.discussion_list, name="discussion_list"),
     path("discussion/<int:discussion_id>/comment/", views.add_comment, name="add_comment"),

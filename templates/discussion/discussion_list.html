@@ -1,79 +1,1932 @@
 {% extends 'base.html' %}
-{% load i18n %}
-{% block title %} {% trans 'Discussion' %} | {% trans 'Learning management system' %}{% endblock title %}
 {% load static %}
+{% block title %}Discussion Forum - {{ course.title }} | NexusLMS{% endblock title %}
 
 {% block content %}
+<style>
+:root {
+    --discussion-primary: #388E3C;
+    --discussion-secondary: #4CAF50;
+    --discussion-accent: #81C784;
+    --discussion-light: #F1F8E9;
+    --discussion-border: #E8F5E8;
+    --text-primary: #2E7D32;
+    --text-secondary: #558B2F;
+    --text-muted: #757575;
+    --shadow: 0 2px 8px rgba(56, 142, 60, 0.1);
+    --shadow-hover: 0 4px 16px rgba(56, 142, 60, 0.15);
+    --gradient-primary: linear-gradient(135deg, #388E3C 0%, #4CAF50 100%);
+    --gradient-secondary: linear-gradient(135deg, #81C784 0%, #A5D6A7 100%);
+}
 
+/* Modern Card Design with Enhanced Visuals */
+.discussion-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--discussion-border);
+    margin-bottom: 24px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    backdrop-filter: blur(10px);
+}
 
-<div class="container">
-    <h2>Discussion Forum for {{ course.title }}</h2>
-    
+.discussion-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-4px);
+}
 
-    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+.discussion-card.pinned {
+    border-left: 6px solid var(--discussion-accent);
+    background: linear-gradient(135deg, var(--discussion-light) 0%, white 100%);
+}
+
+.discussion-card.pinned::before {
+    content: "📌 Pinned";
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--discussion-accent);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 2;
+}
+
+.discussion-header {
+    padding: 24px;
+    background: var(--gradient-primary);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.discussion-header::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(30deg);
+}
+
+.discussion-header h3 {
+    margin: 0 0 12px 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+}
+
+.author-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.875rem;
+    opacity: 0.9;
+    position: relative;
+    z-index: 1;
+}
+
+.author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+}
+
+.author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.author-details {
+    flex: 1;
+}
+
+.author-name {
+    font-weight: 600;
+}
+
+.author-role {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.discussion-meta {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    display: flex;
+    gap: 16px;
+    font-size: 0.875rem;
+    z-index: 1;
+}
+
+.discussion-stats {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 15px;
+}
+
+.discussion-body {
+    padding: 24px;
+    position: relative;
+}
+
+.discussion-content {
+    color: #424242;
+    line-height: 1.7;
+    margin-bottom: 16px;
+    font-size: 1.05rem;
+}
+
+.discussion-tags {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.discussion-tag {
+    background: var(--discussion-light);
+    color: var(--text-secondary);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.discussion-footer {
+    padding: 16px 24px;
+    background: #FAFAFA;
+    border-top: 1px solid var(--discussion-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.discussion-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn-discussion {
+    padding: 10px 18px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-discussion::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.btn-discussion:hover::before {
+    left: 100%;
+}
+
+.btn-like {
+    background: var(--discussion-light);
+    color: var(--text-primary);
+    border: 1px solid var(--discussion-border);
+}
+
+.btn-like:hover, .btn-like.active {
+    background: var(--discussion-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(56, 142, 60, 0.3);
+}
+
+.btn-reply {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 2px 8px rgba(56, 142, 60, 0.3);
+}
+
+.btn-reply:hover {
+    background: var(--text-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(56, 142, 60, 0.4);
+}
+
+/* Comments Section with Enhanced Design */
+.comments-section {
+    margin-top: 24px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border: 1px solid var(--discussion-border);
+}
+
+.comments-header {
+    padding: 20px 24px;
+    background: var(--gradient-secondary);
+    border-bottom: 1px solid var(--discussion-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.comments-header h4 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+
+.comment-count {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+/* Comment Card with Improved Layout */
+.comment-card {
+    border-bottom: 1px solid var(--discussion-border);
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.comment-card:hover {
+    background: rgba(129, 199, 132, 0.05);
+}
+
+.comment-card:last-child {
+    border-bottom: none;
+}
+
+.comment-main {
+    padding: 20px 24px;
+    display: flex;
+    gap: 16px;
+}
+
+.comment-avatar {
+    flex-shrink: 0;
+}
+
+.comment-avatar img, .comment-avatar .avatar-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--discussion-border);
+    transition: all 0.3s ease;
+}
+
+.comment-card:hover .comment-avatar img,
+.comment-card:hover .comment-avatar .avatar-placeholder {
+    border-color: var(--discussion-accent);
+    transform: scale(1.05);
+}
+
+.avatar-placeholder {
+    background: var(--discussion-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.comment-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.comment-author {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-right: 12px;
+    font-size: 1.05rem;
+}
+
+.comment-meta {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.comment-role {
+    background: var(--discussion-light);
+    color: var(--text-secondary);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.comment-text {
+    color: #424242;
+    line-height: 1.7;
+    margin-bottom: 12px;
+    word-wrap: break-word;
+    font-size: 1rem;
+}
+
+.comment-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn-comment-action {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-comment-action:hover {
+    background: var(--discussion-light);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.btn-comment-reply {
+    color: var(--discussion-primary);
+    font-weight: 600;
+}
+
+.btn-comment-reply:hover {
+    background: var(--discussion-light);
+}
+
+/* Enhanced New Discussion Form */
+.new-discussion-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 28px;
+    margin-bottom: 32px;
+    border: 2px dashed var(--discussion-border);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.new-discussion-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--gradient-primary);
+}
+
+.new-discussion-card:hover {
+    border-color: var(--discussion-accent);
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+}
+
+.form-floating > label {
+    padding: 1rem 0.75rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    opacity: 1;
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+.form-control {
+    border-radius: 12px;
+    border: 2px solid var(--discussion-border);
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--discussion-primary);
+    box-shadow: 0 0 0 0.2rem rgba(56, 142, 60, 0.25);
+}
+
+.btn-submit {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(56, 142, 60, 0.4);
+}
+
+/* Enhanced Reply Form */
+.reply-form {
+    display: none;
+    margin-top: 20px;
+    padding: 20px;
+    background: var(--discussion-light);
+    border-radius: 12px;
+    border: 1px solid var(--discussion-border);
+    animation: slideDown 0.3s ease-out;
+}
+
+.reply-form.show {
+    display: block;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Interactive Elements and Animations */
+.discussion-card, .comment-card {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Floating Action Button for Mobile */
+.floating-action-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 20px rgba(56, 142, 60, 0.4);
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    animation: pulse 2s infinite;
+}
+
+.floating-action-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(56, 142, 60, 0.6);
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 4px 20px rgba(56, 142, 60, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 25px rgba(56, 142, 60, 0.7);
+    }
+    100% {
+        box-shadow: 0 4px 20px rgba(56, 142, 60, 0.4);
+    }
+}
+
+/* Enhanced Empty State */
+.empty-discussions {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-muted);
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    margin: 40px 0;
+}
+
+.empty-discussions i {
+    font-size: 5rem;
+    margin-bottom: 20px;
+    opacity: 0.7;
+    color: var(--discussion-accent);
+}
+
+.empty-discussions h3 {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.empty-discussions p {
+    font-size: 1.2rem;
+    margin-bottom: 32px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+/* Loading States with Animation */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--discussion-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design Improvements */
+@media (max-width: 768px) {
+    .discussion-card, .comments-section {
+        margin: 16px;
+        border-radius: 12px;
+    }
+
+    .discussion-header, .comment-main {
+        padding: 16px;
+    }
+
+    .comment-thread {
+        margin-left: 24px;
+    }
+
+    .author-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .discussion-meta {
+        position: static;
+        margin-top: 12px;
+        justify-content: space-between;
+    }
+
+    .floating-action-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+}
+
+/* Toast Notifications with Enhanced Design */
+.toast-notifications {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.toast {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-hover);
+    animation: slideInRight 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 300px;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Discussion Stats Badge */
+.discussion-stats-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Interactive Upvote/Downvote System */
+.vote-system {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    margin-right: 15px;
+}
+
+.btn-vote {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-muted);
+}
+
+.btn-vote:hover {
+    transform: scale(1.2);
+}
+
+.btn-upvote:hover {
+    color: var(--discussion-primary);
+}
+
+.btn-downvote:hover {
+    color: #f44336;
+}
+
+.vote-count {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+/* Enhanced CSS Additions */
+/* Enhanced Visual Design */
+.forum-header {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--discussion-border);
+}
+
+.forum-title-section h1 {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Status Indicators */
+.discussion-status-indicators {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 3;
+}
+
+.status-indicator {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    backdrop-filter: blur(10px);
+}
+
+.status-indicator.pinned {
+    background: rgba(255, 193, 7, 0.2);
+    color: #FF9800;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.status-indicator.resolved {
+    background: rgba(76, 175, 80, 0.2);
+    color: var(--discussion-primary);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.status-indicator.unanswered {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+/* Enhanced Discussion Header */
+.discussion-title {
+    font-size: 1.3rem;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.discussion-title a:hover {
+    text-decoration: underline !important;
+}
+
+/* Topic Tags */
+.discussion-topics {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.topic-tag {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
+.topic-tag.course-tag {
+    background: rgba(255, 255, 255, 0.3);
+    font-weight: 600;
+}
+
+/* Quick Stats */
+.discussion-quick-stats {
+    display: flex;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 15px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.discussion-quick-stats .stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Enhanced Action Bar */
+.discussion-actions-bar {
+    display: flex;
+    gap: 8px;
+    padding: 16px 0 0 0;
+    border-top: 1px solid var(--discussion-border);
+    margin-top: 16px;
+}
+
+.btn-action {
+    background: var(--discussion-light);
+    border: 1px solid var(--discussion-border);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.btn-action:hover {
+    background: var(--discussion-accent);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn-action .count {
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Enhanced Form Controls */
+.forum-controls .btn {
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.forum-controls .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* Loading States */
+.skeleton-loader {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 8px;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Enhanced Mobile Responsiveness */
+@media (max-width: 768px) {
+    .forum-header {
+        padding: 16px;
+    }
+
+    .discussion-quick-stats {
+        gap: 10px;
+        padding: 6px 12px;
+    }
+
+    .discussion-quick-stats .stat {
+        font-size: 0.8rem;
+    }
+
+    .discussion-actions-bar {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    .forum-controls .dropdown {
+        width: 100%;
+    }
+
+    .forum-controls .d-flex {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .discussion-card {
+        background: #1e1e1e;
+        color: #e0e0e0;
+    }
+
+    .discussion-content {
+        color: #e0e0e0;
+    }
+}
+
+</style>
+
+<div class="container-fluid" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">{% trans 'Home' %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
             {% if request.user.is_student %}
-            <li class="breadcrumb-item"><a href="{% url 'user_course_list' %}">{% trans 'My courses' %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'user_course_list' %}">My Courses</a></li>
             {% else %}
-            <li class="breadcrumb-item"><a href="{% url 'programs' %}">{% trans 'Programs' %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'programs' %}">Programs</a></li>
             {% endif %}
-            <li class="breadcrumb-item"><a href="{% url 'program_detail' course.program.id %}">{{ course.program }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ course }}</li>
-            
+            <li class="breadcrumb-item"><a href="{% url 'program_detail' request.user.student.program.id %}">{{ request.user.student.program }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'course_detail' course.slug %}">{{ course.title }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Discussions</li>
         </ol>
     </nav>
 
+    <!-- Enhanced Forum Header with Filters & Controls -->
+    <div class="forum-header mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="forum-title-section">
+                <h1 class="h2 mb-2" style="color: var(--text-primary); font-weight: 800;">
+                    <i class="fas fa-comments me-2"></i>
+                    {{ course.title }} Discussion Forum
+                </h1>
+                <p class="text-muted mb-0">{{ course.code }} • {{ active_participants }} active participants</p>
+            </div>
 
+            <!-- Enhanced Filter & Sort Controls -->
+            <div class="forum-controls d-flex flex-wrap gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-filter me-1"></i>Filter
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" data-filter="all">All Discussions</a></li>
+                        <li><a class="dropdown-item" href="#" data-filter="unanswered">Unanswered</a></li>
+                        <li><a class="dropdown-item" href="#" data-filter="instructor">Instructor Posts</a></li>
+                        <li><a class="dropdown-item" href="#" data-filter="my-posts">My Posts</a></li>
+                    </ul>
+                </div>
 
-    <!-- Discussion Form -->
-    <form method="post" class="mb-4">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn btn-primary">Start Discussion</button>
-    </form>
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-sort me-1"></i>Sort
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" data-sort="newest">Newest First</a></li>
+                        <li><a class="dropdown-item" href="#" data-sort="oldest">Oldest First</a></li>
+                        <li><a class="dropdown-item" href="#" data-sort="most-comments">Most Active</a></li>
+                        <li><a class="dropdown-item" href="#" data-sort="recent-activity">Recent Activity</a></li>
+                    </ul>
+                </div>
 
-    <hr>
+                <!-- Quick Stats -->
+                <div class="forum-stats d-flex align-items-center gap-3 text-muted">
+                    <small class="d-flex align-items-center">
+                        <i class="fas fa-comment me-1"></i>
+                        {{ discussions|length }} discussions
+                    </small>
+                    <small class="d-flex align-items-center">
+                        <i class="fas fa-users me-1"></i>
+                        {{ active_participants }} participants
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- New Discussion Form -->
+    <div class="new-discussion-card">
+        <h5 class="mb-3" style="color: var(--text-primary);">
+            <i class="fas fa-plus-circle me-2"></i>
+            Start a New Discussion
+        </h5>
+        <form method="post" id="newDiscussionForm">
+            {% csrf_token %}
+            <div class="mb-3">
+                <div class="form-floating">
+                    {{ form.title }}
+                    <label for="{{ form.title.id_for_label }}">Discussion Title</label>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="form-floating">
+                    {{ form.content }}
+                    <label for="{{ form.content.id_for_label }}">What's on your mind?</label>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-paper-plane me-2"></i>
+                    Post Discussion
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Discussions List -->
     {% if discussions %}
         {% for discussion in discussions %}
-        <div class="mb-5">
-            <h5>{{ discussion.title }} by {{ discussion.created_by }} at {{ discussion.created_at }}</h5>
-            {% if discussion.created_by == request.user or request.user.is_superuser %}
-            <div class="text-end mb-2">
-                <a href="{% url 'delete_discussion' discussion.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this discussion?');">
-                    Delete Discussion
-                </a>
+        <div class="discussion-card {% if discussion.pinned %}pinned{% endif %}" data-discussion-id="{{ discussion.id }}">
+            <!-- Status Indicators -->
+            <div class="discussion-status-indicators">
+                {% if discussion.pinned %}
+                <div class="status-indicator pinned">
+                    <i class="fas fa-thumbtack"></i>
+                    <span>Pinned</span>
+                </div>
+                {% endif %}
+                {% if discussion.is_resolved %}
+                <div class="status-indicator resolved">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Resolved</span>
+                </div>
+                {% endif %}
+                {% if not discussion.has_replies %}
+                <div class="status-indicator unanswered">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Needs Answer</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Enhanced Header with Better Visual Hierarchy -->
+            <div class="discussion-header">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="discussion-title-section flex-grow-1">
+                        <h3 class="discussion-title">
+                            <a href="#" class="text-decoration-none text-white" onclick="expandDiscussion({{ discussion.id }})">
+                                {{ discussion.title }}
+                            </a>
+                        </h3>
+
+                        <!-- Topic Tags -->
+                        <div class="discussion-topics mt-2">
+                            <span class="topic-tag course-tag">
+                                <i class="fas fa-book me-1"></i>
+                                {{ course.code }}
+                            </span>
+                            {% if discussion.topic %}
+                            <span class="topic-tag">
+                                <i class="fas fa-tag me-1"></i>
+                                {{ discussion.topic }}
+                            </span>
+                            {% endif %}
+                            {% if discussion.created_by.is_lecturer %}
+                            <span class="topic-tag">
+                                <i class="fas fa-chalkboard-teacher me-1"></i>
+                                Instructor
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="discussion-quick-stats">
+                        <div class="stat replies">
+                            <i class="fas fa-comment"></i>
+                            <span>{{ discussion.comments.count }}</span>
+                        </div>
+                        <div class="stat views">
+                            <i class="fas fa-eye"></i>
+                            <span>{{ discussion.views }}</span>
+                        </div>
+                        <div class="stat likes">
+                            <i class="fas fa-heart"></i>
+                            <span class="like-count">{{ discussion.likes.count }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Author Info with Enhanced Layout -->
+                <div class="author-info mt-3">
+                    <div class="author-avatar">
+                        {% if discussion.created_by.profile.avatar %}
+                            <img src="{{ discussion.created_by.profile.avatar.url }}" alt="{{ discussion.created_by.get_full_name }}">
+                        {% else %}
+                            <div class="avatar-placeholder">
+                                {{ discussion.created_by.get_full_name|slice:":2"|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="author-details">
+                        <div class="author-name">{{ discussion.created_by.get_full_name }}</div>
+                        <div class="author-meta">
+                            <span class="author-role">
+                                {% if discussion.created_by.is_superuser %}
+                                    Administrator
+                                {% elif discussion.created_by.is_lecturer %}
+                                    Instructor
+                                {% else %}
+                                    Student
+                                {% endif %}
+                            </span>
+                            <span class="post-time">{{ discussion.created_at|timesince }} ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collapsible Content -->
+            <div class="discussion-body">
+                <div class="discussion-content">
+                    {{ discussion.content|linebreaks }}
+                </div>
+
+                <!-- Action Bar -->
+                <div class="discussion-actions-bar">
+                    <button class="btn-action btn-like" onclick="toggleLike({{ discussion.id }}, 'discussion')">
+                        <i class="far fa-heart"></i>
+                        <span>Like</span>
+                        <span class="count">{{ discussion.likes.count }}</span>
+                    </button>
+
+                    <button class="btn-action btn-reply" onclick="showReplyForm({{ discussion.id }})">
+                        <i class="far fa-comment"></i>
+                        <span>Reply</span>
+                    </button>
+
+                    <button class="btn-action btn-share" onclick="shareDiscussion({{ discussion.id }})">
+                        <i class="far fa-share-square"></i>
+                        <span>Share</span>
+                    </button>
+
+                    {% if discussion.created_by == request.user or request.user.is_superuser %}
+                    <div class="dropdown discussion-options">
+                        <button class="btn-action" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="deleteDiscussion({{ discussion.id }})"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                            {% if request.user.is_superuser or request.user.is_lecturer %}
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-thumbtack me-2"></i>{{ discussion.pinned|yesno:"Unpin,Pin" }}</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-check-circle me-2"></i>Mark as Resolved</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reply Form -->
+            <div class="reply-form" id="replyForm-{{ discussion.id }}">
+                <form method="post" action="{% url 'add_comment' discussion.id %}">
+                    {% csrf_token %}
+                    <div class="form-floating">
+                        <textarea class="form-control" name="message" placeholder="Write your reply..." required></textarea>
+                        <label>Write your reply...</label>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-2">
+                        <button type="button" class="btn btn-secondary" onclick="hideReplyForm({{ discussion.id }})">Cancel</button>
+                        <button type="submit" class="btn-reply-submit">
+                            <i class="fas fa-paper-plane me-1"></i>Post Reply
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Comments -->
+            {% if discussion.comments %}
+            <div class="comments-section">
+                <div class="comments-header">
+                    <h4>
+                        <i class="fas fa-comments"></i>
+                        Comments
+                        <span class="comment-count">{{ discussion.comments.count }}</span>
+                    </h4>
+                </div>
+
+                {% for comment in discussion.comments.all %}
+                    {% if not comment.parent %}
+                    <div class="comment-card">
+                        <div class="comment-main">
+                            <div class="comment-avatar">
+                                {% if comment.created_by.profile.avatar %}
+                                    <img src="{{ comment.created_by.profile.avatar.url }}" alt="Avatar">
+                                {% else %}
+                                    <div class="avatar-placeholder">
+                                        {{ comment.created_by.get_full_name|slice:":2"|upper }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="comment-content">
+                                <div class="comment-header">
+                                    <div>
+                                        <span class="comment-author">{{ comment.created_by.get_full_name }}</span>
+                                        <span class="comment-role">
+                                            {% if comment.created_by.is_superuser %}
+                                                Admin
+                                            {% elif comment.created_by.is_lecturer %}
+                                                Lecturer
+                                            {% else %}
+                                                Student
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="comment-meta">
+                                        <span>{{ comment.created_at|timesince }}</span>
+                                        {% if comment.can_edit %}
+                                        <div class="dropdown">
+                                            <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="{% url 'edit_comment' comment.id %}">
+                                                    <i class="fas fa-edit me-2"></i>Edit
+                                                </a></li>
+                                                <li><a class="dropdown-item text-danger" href="{% url 'delete_comment' comment.id %}" onclick="return confirm('Delete this comment?')">
+                                                    <i class="fas fa-trash me-2"></i>Delete
+                                                </a></li>
+                                            </ul>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="comment-text">{{ comment.message|linebreaks }}</div>
+                                <div class="comment-actions">
+                                    <button class="btn-comment-action btn-comment-reply" onclick="showNestedReplyForm({{ comment.id }})">
+                                        <i class="fas fa-reply me-1"></i>Reply
+                                    </button>
+                                    <button class="btn-comment-action" onclick="toggleCommentLike({{ comment.id }})">
+                                        <i class="far fa-heart me-1"></i>Like
+                                    </button>
+                                </div>
+
+                                <!-- Nested Reply Form -->
+                                <div class="reply-form nested-reply-form" id="nestedReplyForm-{{ comment.id }}">
+                                    <form method="post" action="{% url 'add_comment' discussion.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="parent" value="{{ comment.id }}">
+                                        <div class="form-floating">
+                                            <textarea class="form-control" name="message" placeholder="Write your reply..." required></textarea>
+                                            <label>Write your reply...</label>
+                                        </div>
+                                        <div class="d-flex justify-content-end gap-2 mt-2">
+                                            <button type="button" class="btn btn-secondary" onclick="hideNestedReplyForm({{ comment.id }})">Cancel</button>
+                                            <button type="submit" class="btn-reply-submit">
+                                                <i class="fas fa-paper-plane me-1"></i>Post Reply
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nested Comments -->
+                        {% for nested_comment in discussion.comments.all %}
+                            {% if nested_comment.parent == comment %}
+                            <div class="comment-thread">
+                                <div class="nested-comment">
+                                    <div class="comment-main">
+                                        <div class="comment-avatar">
+                                            {% if nested_comment.created_by.profile.avatar %}
+                                                <img src="{{ nested_comment.created_by.profile.avatar.url }}" alt="Avatar">
+                                            {% else %}
+                                                <div class="avatar-placeholder">
+                                                    {{ nested_comment.created_by.get_full_name|slice:":2"|upper }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="comment-content">
+                                            <div class="comment-header">
+                                                <div>
+                                                    <span class="comment-author">{{ nested_comment.created_by.get_full_name }}</span>
+                                                    <span class="comment-role">
+                                                        {% if nested_comment.created_by.is_superuser %}
+                                                            Admin
+                                                        {% elif nested_comment.created_by.is_lecturer %}
+                                                            Lecturer
+                                                        {% else %}
+                                                            Student
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
+                                                <div class="comment-meta">
+                                                    <span>{{ nested_comment.created_at|timesince }}</span>
+                                                    {% if nested_comment.can_edit %}
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
+                                                            <i class="fas fa-ellipsis-h"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><a class="dropdown-item" href="{% url 'edit_comment' nested_comment.id %}">
+                                                                <i class="fas fa-edit me-2"></i>Edit
+                                                            </a></li>
+                                                            <li><a class="dropdown-item text-danger" href="{% url 'delete_comment' nested_comment.id %}" onclick="return confirm('Delete this comment?')">
+                                                                <i class="fas fa-trash me-2"></i>Delete
+                                                            </a></li>
+                                                        </ul>
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="comment-text">{{ nested_comment.message|linebreaks }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
             </div>
             {% endif %}
-
-            <ul class="list-group mb-3">
-                {% for comment in discussion.comments.all %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>{{ comment.message }} by {{ comment.created_by }} at {{ comment.created_at }}</span>
-                    {% comment %} {% if comment.can_edit %} {% endcomment %}
-                    <div>
-                        <a href="{% url 'edit_comment' comment.id %}" class="btn btn-sm btn-warning">Edit</a>
-                        <a href="{% url 'delete_comment' comment.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this comment?');">Delete</a>
-                    </div>
-                    {% comment %} {% endif %} {% endcomment %}
-                </li>
-                {% empty %}
-                <li class="list-group-item">No comments yet.</li>
-                {% endfor %}
-            </ul>
-
-            <!-- Comment Form -->
-            <form method="post" action="{% url 'add_comment' discussion.id %}" class="mt-3">
-                {% csrf_token %}
-                <textarea name="message" class="form-control" placeholder="Add a comment"></textarea>
-                <button class="btn btn-sm btn-secondary mt-2">Comment</button>
-            </form>
         </div>
-        <hr>
         {% endfor %}
+
     {% else %}
-    <p>No discussions yet.</p>
+        <!-- Empty State -->
+        <div class="empty-discussions">
+            <i class="fas fa-comments"></i>
+            <h3>No Discussions Yet</h3>
+            <p>Be the first to start a discussion in this course. Ask questions, share ideas, or connect with your classmates and instructors.</p>
+            <button class="btn-submit" onclick="scrollToNewDiscussion()">
+                <i class="fas fa-plus-circle me-2"></i>Start the First Discussion
+            </button>
+        </div>
     {% endif %}
+
+    <!-- Floating Action Button for Mobile -->
+    <div class="floating-action-btn" onclick="scrollToNewDiscussion()">
+        <i class="fas fa-plus"></i>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-notifications" id="toastContainer"></div>
 </div>
+
+<script>
+// Enhanced JavaScript for better UX
+class DiscussionForum {
+    constructor() {
+        this.currentFilter = 'all';
+        this.currentSort = 'newest';
+        this.searchQuery = '';
+        this.page = 1;
+        this.isLoading = false;
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+        this.loadUserPreferences();
+        this.setupInfiniteScroll();
+        this.setupSearch();
+        this.setupAnimations();
+    }
+
+    setupEventListeners() {
+        // Filter and sort controls
+        document.querySelectorAll('[data-filter]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.applyFilter(e.target.dataset.filter);
+            });
+        });
+
+        document.querySelectorAll('[data-sort]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.applySort(e.target.dataset.sort);
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', this.handleKeyboardShortcuts.bind(this));
+
+        // Real-time updates
+        this.setupRealTimeUpdates();
+    }
+
+    applyFilter(filter) {
+        this.currentFilter = filter;
+        this.updateDiscussionList();
+        this.showToast(`Filtered by: ${this.getFilterLabel(filter)}`);
+        this.saveUserPreferences();
+    }
+
+    applySort(sort) {
+        this.currentSort = sort;
+        this.updateDiscussionList();
+        this.showToast(`Sorted by: ${this.getSortLabel(sort)}`);
+        this.saveUserPreferences();
+    }
+
+    updateDiscussionList() {
+        const discussions = document.querySelectorAll('.discussion-card');
+        let visibleCount = 0;
+
+        discussions.forEach(discussion => {
+            let shouldShow = true;
+
+            // Apply filters
+            switch(this.currentFilter) {
+                case 'unanswered':
+                    shouldShow = !discussion.querySelector('.comments-section');
+                    break;
+                case 'instructor':
+                    shouldShow = discussion.querySelector('.author-role')?.textContent.includes('Instructor');
+                    break;
+                case 'my-posts':
+                    // Implementation depends on your user identification
+                    // shouldShow = discussion.dataset.authorId === currentUserId;
+                    break;
+            }
+
+            // Apply search
+            if (shouldShow && this.searchQuery.length > 0) {
+                const text = discussion.textContent.toLowerCase();
+                shouldShow = text.includes(this.searchQuery.toLowerCase());
+            }
+
+            discussion.style.display = shouldShow ? 'block' : 'none';
+            if (shouldShow) visibleCount++;
+        });
+
+        this.animateListUpdate();
+
+        // Update filter stats
+        this.updateFilterStats(visibleCount);
+    }
+
+    updateFilterStats(visibleCount) {
+        const totalCount = document.querySelectorAll('.discussion-card').length;
+        const statsEl = document.querySelector('.forum-stats small:first-child');
+        if (statsEl) {
+            statsEl.innerHTML = `<i class="fas fa-comment me-1"></i> ${visibleCount} of ${totalCount} discussions`;
+        }
+    }
+
+    animateListUpdate() {
+        const container = document.querySelector('.container-fluid');
+        container.style.opacity = '0.7';
+        container.style.transition = 'opacity 0.3s ease';
+
+        setTimeout(() => {
+            container.style.opacity = '1';
+        }, 300);
+    }
+
+    setupInfiniteScroll() {
+        let loading = false;
+
+        window.addEventListener('scroll', () => {
+            if (loading || this.isLoading) return;
+
+            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+
+            if (scrollTop + clientHeight >= scrollHeight - 500) {
+                loading = true;
+                this.loadMoreDiscussions().finally(() => {
+                    loading = false;
+                });
+            }
+        });
+    }
+
+    async loadMoreDiscussions() {
+        if (this.isLoading) return;
+
+        this.isLoading = true;
+        const loader = this.createLoader();
+        document.querySelector('.container-fluid').appendChild(loader);
+
+        try {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // In real implementation, fetch next page of discussions
+            // const newDiscussions = await this.fetchDiscussions(++this.page);
+            // this.appendDiscussions(newDiscussions);
+
+            this.showToast('More discussions loaded', 'success');
+        } catch (error) {
+            this.showToast('Failed to load more discussions', 'error');
+        } finally {
+            loader.remove();
+            this.isLoading = false;
+        }
+    }
+
+    createLoader() {
+        const loader = document.createElement('div');
+        loader.className = 'discussion-card skeleton-loader';
+        loader.innerHTML = `
+            <div class="discussion-header skeleton-loader">
+                <div style="height: 24px; margin-bottom: 8px;"></div>
+                <div style="height: 16px; width: 60%;"></div>
+            </div>
+            <div class="discussion-body skeleton-loader" style="height: 80px; margin: 16px;"></div>
+        `;
+        return loader;
+    }
+
+    setupSearch() {
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.placeholder = 'Search discussions...';
+        searchInput.className = 'form-control discussion-search';
+        searchInput.style.marginBottom = '20px';
+
+        searchInput.addEventListener('input', this.debounce((e) => {
+            this.performSearch(e.target.value);
+        }, 300));
+
+        // Add search to page header
+        document.querySelector('.forum-controls').prepend(searchInput);
+    }
+
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    performSearch(query) {
+        this.searchQuery = query;
+        if (query.length < 2 && query.length > 0) return;
+
+        const discussions = document.querySelectorAll('.discussion-card');
+        let results = 0;
+
+        discussions.forEach(discussion => {
+            const text = discussion.textContent.toLowerCase();
+            const matches = text.includes(query.toLowerCase());
+            discussion.style.display = matches ? 'block' : 'none';
+            if (matches) results++;
+        });
+
+        if (query.length > 0) {
+            this.showToast(`Found ${results} discussion${results !== 1 ? 's' : ''}`);
+        }
+
+        this.updateFilterStats(results);
+    }
+
+    setupAnimations() {
+        // Animate cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.discussion-card, .comment-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(card);
+        });
+    }
+
+    handleKeyboardShortcuts(e) {
+        // Enhanced keyboard shortcuts
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key) {
+                case 'n':
+                    e.preventDefault();
+                    document.querySelector('.new-discussion-card').scrollIntoView({ behavior: 'smooth' });
+                    document.querySelector('#newDiscussionForm textarea').focus();
+                    break;
+                case 'f':
+                    e.preventDefault();
+                    document.querySelector('.discussion-search')?.focus();
+                    break;
+                case 'r':
+                    e.preventDefault();
+                    this.refreshDiscussions();
+                    break;
+            }
+        }
+
+        // Escape to close forms
+        if (e.key === 'Escape') {
+            const openForms = document.querySelectorAll('.reply-form.show');
+            openForms.forEach(form => this.hideReplyForm(form.id.split('-')[1]));
+        }
+    }
+
+    async refreshDiscussions() {
+        this.showToast('Refreshing discussions...', 'info');
+
+        // Reset search and filters
+        this.searchQuery = '';
+        this.currentFilter = 'all';
+        this.currentSort = 'newest';
+
+        // Reset UI
+        document.querySelector('.discussion-search').value = '';
+        document.querySelectorAll('.discussion-card').forEach(card => {
+            card.style.display = 'block';
+        });
+
+        // In real implementation, fetch latest discussions
+        // await this.fetchLatestDiscussions();
+
+        setTimeout(() => {
+            this.showToast('Discussions updated', 'success');
+        }, 1000);
+    }
+
+    setupRealTimeUpdates() {
+        // WebSocket or polling implementation for real-time updates
+        // This would show notifications when new discussions or comments are posted
+    }
+
+    saveUserPreferences() {
+        localStorage.setItem('discussion_filter', this.currentFilter);
+        localStorage.setItem('discussion_sort', this.currentSort);
+    }
+
+    loadUserPreferences() {
+        const savedFilter = localStorage.getItem('discussion_filter');
+        const savedSort = localStorage.getItem('discussion_sort');
+
+        if (savedFilter) {
+            this.currentFilter = savedFilter;
+            document.querySelector(`[data-filter="${savedFilter}"]`)?.classList.add('active');
+        }
+        if (savedSort) {
+            this.currentSort = savedSort;
+            document.querySelector(`[data-sort="${savedSort}"]`)?.classList.add('active');
+        }
+    }
+
+    getFilterLabel(filter) {
+        const labels = {
+            'all': 'All Discussions',
+            'unanswered': 'Unanswered',
+            'instructor': 'Instructor Posts',
+            'my-posts': 'My Posts'
+        };
+        return labels[filter] || filter;
+    }
+
+    getSortLabel(sort) {
+        const labels = {
+            'newest': 'Newest First',
+            'oldest': 'Oldest First',
+            'most-comments': 'Most Active',
+            'recent-activity': 'Recent Activity'
+        };
+        return labels[sort] || sort;
+    }
+
+    showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        let icon = 'fa-info-circle';
+        let bgColor = 'linear-gradient(135deg, #2196F3 0%, #21CBF3 100%)';
+
+        switch(type) {
+            case 'success':
+                icon = 'fa-check-circle';
+                bgColor = 'var(--gradient-primary)';
+                break;
+            case 'error':
+                icon = 'fa-times-circle';
+                bgColor = 'linear-gradient(135deg, #f44336 0%, #e57373 100%)';
+                break;
+            case 'warning':
+                icon = 'fa-exclamation-triangle';
+                bgColor = 'linear-gradient(135deg, #FF9800 0%, #FFC107 100%)';
+                break;
+        }
+
+        toast.innerHTML = `<i class="fas ${icon} me-2"></i>${message}`;
+        toast.style.background = bgColor;
+
+        document.getElementById('toastContainer').appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+}
+
+// Legacy functions for backward compatibility - these can be removed once all calls are updated
+function showReplyForm(discussionId) {
+    const form = document.getElementById(`replyForm-${discussionId}`);
+    form.classList.add('show');
+    form.querySelector('textarea').focus();
+
+    // Scroll to form with smooth animation
+    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Add focus styles
+    form.style.boxShadow = '0 0 0 2px var(--discussion-accent)';
+    setTimeout(() => {
+        form.style.boxShadow = '';
+    }, 2000);
+
+    window.discussionForum?.showToast('Reply form opened', 'info');
+}
+
+function hideReplyForm(discussionId) {
+    const form = document.getElementById(`replyForm-${discussionId}`);
+    form.classList.remove('show');
+}
+
+function showNestedReplyForm(commentId) {
+    const form = document.getElementById(`nestedReplyForm-${commentId}`);
+    form.classList.add('show');
+    form.querySelector('textarea').focus();
+    window.discussionForum?.showToast('Nested reply form opened', 'info');
+}
+
+function hideNestedReplyForm(commentId) {
+    const form = document.getElementById(`nestedReplyForm-${commentId}`);
+    form.classList.remove('show');
+}
+
+function toggleLike(itemId, type) {
+    const likeBtn = event.target.closest('.btn-like');
+    const icon = likeBtn.querySelector('i');
+    const count = likeBtn.querySelector('.count');
+
+    // Add loading state
+    likeBtn.classList.add('loading');
+    likeBtn.disabled = true;
+
+    // Simulate API call
+    setTimeout(() => {
+        if (likeBtn.classList.contains('active')) {
+            likeBtn.classList.remove('active');
+            icon.classList.replace('fas', 'far');
+            count.textContent = parseInt(count.textContent) - 1;
+            window.discussionForum?.showToast('Removed like', 'info');
+        } else {
+            likeBtn.classList.add('active');
+            icon.classList.replace('far', 'fas');
+            count.textContent = parseInt(count.textContent) + 1;
+            window.discussionForum?.showToast('Liked!', 'success');
+
+            // Add animation
+            likeBtn.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                likeBtn.style.transform = '';
+            }, 300);
+        }
+
+        likeBtn.classList.remove('loading');
+        likeBtn.disabled = false;
+    }, 500);
+}
+
+function toggleCommentLike(commentId) {
+    window.discussionForum?.showToast('Comment liked!', 'success');
+}
+
+function deleteDiscussion(discussionId) {
+    if (confirm('Are you sure you want to delete this discussion? This action cannot be undone.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `{% url 'delete_discussion' 0 %}`.replace('0', discussionId);
+
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function shareDiscussion(discussionId) {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+        window.discussionForum?.showToast('Discussion link copied to clipboard!', 'success');
+    });
+}
+
+function expandDiscussion(discussionId) {
+    const card = document.querySelector(`[data-discussion-id="${discussionId}"]`);
+    const body = card.querySelector('.discussion-body');
+    const isCollapsed = body.style.display === 'none';
+
+    body.style.display = isCollapsed ? 'block' : 'none';
+    card.classList.toggle('expanded', isCollapsed);
+}
+
+function scrollToNewDiscussion() {
+    document.querySelector('.new-discussion-card').scrollIntoView({
+        behavior: 'smooth'
+    });
+}
+
+// Auto-resize textareas
+document.addEventListener('input', function(e) {
+    if (e.target.tagName.toLowerCase() === 'textarea') {
+        e.target.style.height = 'auto';
+        e.target.style.height = e.target.scrollHeight + 'px';
+    }
+});
+
+// Enhanced form submission with loading states
+document.getElementById('newDiscussionForm').addEventListener('submit', function(e) {
+    const submitBtn = this.querySelector('.btn-submit');
+    const originalText = submitBtn.innerHTML;
+
+    submitBtn.innerHTML = '<div class="loading-spinner"></div> Posting...';
+    submitBtn.disabled = true;
+
+    // Re-enable after a timeout (form will redirect anyway)
+    setTimeout(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 5000);
+});
+
+// Initialize the enhanced forum
+document.addEventListener('DOMContentLoaded', () => {
+    window.discussionForum = new DiscussionForum();
+
+    // Add ripple effects to buttons
+    document.querySelectorAll('.btn-action, .btn-discussion').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple-effect';
+            ripple.style.left = (e.offsetX - 10) + 'px';
+            ripple.style.top = (e.offsetY - 10) + 'px';
+            this.appendChild(ripple);
+
+            setTimeout(() => ripple.remove(), 600);
+        });
+    });
+
+    // Auto-save drafts
+    let draftTimer;
+    document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            clearTimeout(draftTimer);
+            draftTimer = setTimeout(() => {
+                localStorage.setItem(`draft_${this.name}_${this.closest('form').action}`, this.value);
+            }, 1000);
+        });
+
+        // Load saved draft
+        const savedDraft = localStorage.getItem(`draft_${textarea.name}_${textarea.closest('form').action}`);
+        if (savedDraft && !textarea.value) {
+            textarea.value = savedDraft;
+        }
+    });
+
+    // Performance monitoring
+    if (window.performance && window.performance.mark) {
+        window.performance.mark('discussion-page-loaded');
+    }
+});
+</script>
 {% endblock %}

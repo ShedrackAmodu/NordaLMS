@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Parent Features | NexusLMS{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="parent-hero" style="background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%); color: white; padding: 120px 0 80px;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <h1 class="display-4 fw-bold mb-4">Features for Parents</h1>
+                <p class="lead mb-4">Stay connected and informed about your child's academic journey.</p>
+                <p>Monitor progress, communicate with educators, and support your child's learning with our comprehensive parent portal.</p>
+                <a href="{% url 'register' %}" class="btn btn-light btn-lg mt-3">Access Parent Portal</a>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <img src="{% static 'images/parent-hero.jpg' %}" alt="Parent Features" class="img-fluid rounded shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Key Features -->
+<section class="key-features py-5" style="padding: 100px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5" data-aos="fade-up">
+                <h2 class="fw-bold mb-4">Parent Portal Features</h2>
+                <p class="lead">Stay informed and engaged with your child's education</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-4">
+                        <i class="fas fa-chart-line fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Progress Monitoring</h4>
+                    <p>Track your child's grades, assignment completion, and overall academic performance in real-time.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-4">
+                        <i class="fas fa-calendar-check fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Attendance Tracking</h4>
+                    <p>Monitor attendance records and receive notifications for absences or tardiness.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-4">
+                        <i class="fas fa-comment-dots fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Direct Communication</h4>
+                    <p>Message teachers and school administrators directly through the secure portal.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-4">
+                        <i class="fas fa-bell fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Notifications & Alerts</h4>
+                    <p>Receive timely notifications for grades, assignments, events, and important announcements.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-4">
+                        <i class="fas fa-file-invoice fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Report Cards</h4>
+                    <p>Access digital report cards and progress reports as soon as they're published.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-4">
+                        <i class="fas fa-mobile-alt fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Mobile Access</h4>
+                    <p>Stay connected on-the-go with our mobile-responsive parent portal and dedicated app.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5 text-white" style="background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%); padding: 100px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center" data-aos="fade-up">
+                <h2 class="fw-bold mb-4">Stay Connected to Your Child's Education</h2>
+                <p class="lead mb-4">Join thousands of parents using NexusLMS to support their children's academic success.</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'register' %}" class="btn btn-light btn-lg">Access Parent Portal</a>
+                    <a href="{% url 'contact' %}" class="btn btn-outline-light btn-lg">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.feature-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %}

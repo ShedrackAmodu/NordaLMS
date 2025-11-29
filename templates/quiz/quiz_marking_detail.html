@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n %}
+{% load quiz_tags %}
 {% block title %}
 {% trans "Result of" %} {{ sitting.quiz.title }} {% trans "for" %} {{ sitting.user }} | {% trans 'Learning management system' %}
 {% endblock %}
@@ -33,42 +34,40 @@
 	<tr>
 	  <th>{% trans "Question" %}</th>
 	  <th>{% trans "User answer" %}</th>
-	  <th></th>
-	  <th></th>
+	  <th>{% trans "Status" %}</th>
 	</tr>
   </thead>
 
   <tbody>
 {% for question in questions %}
-
 <tr>
-	<td>{{ question.content }}</td>
-	<td>
-	  {% if question|instanceof:"EssayQuestion" %}
-		<p><strong>{% trans "Student's Answer" %}:</strong></p>
-		<p>{{ question.user_answer }}</p>
-		<form method="POST">
-		  {% csrf_token %}
-		  <input type="hidden" name="qid" value="{{ question.id }}">
-		  <label>{% trans "Score for this answer" %}:</label>
-		  <input type="number" name="score" min="0" max="10" required>
-		  <button type="submit" class="btn btn-success">{% trans "Submit Score" %}</button>
-		</form>
-	  {% else %}
-		{{ question }}
-	  {% endif %}
-	</td>
-	<td>
-	  {% if question.id in sitting.get_incorrect_questions %}
-		<p>{% trans "incorrect" %}</p>
-	  {% else %}
-		<p>{% trans "Correct" %}</p>
-	  {% endif %}
-	</td>
-  </tr>
-  
+    <td>{{ question.content }}</td>
+    <td>
+        {% if question|instanceof:"EssayQuestion" %}
+            <p><strong>{% trans "Student's Answer" %}:</strong></p>
+            <div class="border p-2 mb-2">{{ question.user_answer }}</div>
+            <form method="POST" class="mt-2">
+                {% csrf_token %}
+                <input type="hidden" name="qid" value="{{ question.id }}">
+                <div class="input-group">
+                    <span class="input-group-text">{% trans "Score" %}</span>
+                    <input type="number" name="score" class="form-control" min="0" max="10" required>
+                    <button type="submit" class="btn btn-success">{% trans "Submit Score" %}</button>
+                </div>
+            </form>
+        {% else %}
+            {{ question|answer_choice_to_string:question.user_answer }}
+        {% endif %}
+    </td>
+    <td>
+        {% if question.id in sitting.get_incorrect_questions %}
+            <span class="badge bg-danger">{% trans "incorrect" %}</span>
+        {% else %}
+            <span class="badge bg-success">{% trans "Correct" %}</span>
+        {% endif %}
+    </td>
+</tr>
 {% endfor %}
-
   </tbody>
 
 </table>

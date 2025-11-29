@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Blog | NexusLMS{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="blog-hero" style="background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%); color: white; padding: 120px 0 80px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center" data-aos="fade-up">
+                <h1 class="display-4 fw-bold mb-4">NexusLMS Blog</h1>
+                <p class="lead mb-4">Insights, updates, and best practices for modern education</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Post -->
+<section class="featured-post py-5" style="padding: 100px 0 50px;">
+    <div class="container">
+        <div class="row" data-aos="fade-up">
+            <div class="col-lg-12">
+                <div class="card border-0 shadow-lg overflow-hidden">
+                    <div class="row g-0">
+                        <div class="col-lg-6">
+                            <img src="{% static 'images/blog-featured.jpg' %}" class="img-fluid h-100" alt="Featured Post" style="object-fit: cover;">
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card-body p-5 d-flex flex-column h-100">
+                                <span class="badge bg-primary mb-3 align-self-start">Featured</span>
+                                <h2 class="card-title fw-bold mb-3">The Future of Online Learning: Trends for 2024</h2>
+                                <p class="card-text flex-grow-1">Explore the emerging trends shaping online education and how institutions can adapt to provide better learning experiences in the digital age.</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="author-info">
+                                        <strong>Dr. Sarah Chen</strong>
+                                        <span class="text-muted"> • March 15, 2024 • 8 min read</span>
+                                    </div>
+                                    <a href="#" class="btn btn-primary">Read More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Posts -->
+<section class="blog-posts py-5 bg-light" style="padding: 50px 0 100px;">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Post 1 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="card h-100 border-0 shadow-sm">
+                    <img src="{% static 'images/blog1.jpg' %}" class="card-img-top" alt="Blog Post">
+                    <div class="card-body">
+                        <span class="badge bg-secondary mb-2">Teaching Strategies</span>
+                        <h5 class="card-title fw-bold">Enhancing Student Engagement with Interactive Content</h5>
+                        <p class="card-text">Discover how to create engaging learning materials that keep students motivated and improve learning outcomes.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">March 10, 2024</small>
+                            <a href="#" class="btn btn-outline-primary btn-sm">Read</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post 2 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="card h-100 border-0 shadow-sm">
+                    <img src="{% static 'images/blog2.jpg' %}" class="card-img-top" alt="Blog Post">
+                    <div class="card-body">
+                        <span class="badge bg-success mb-2">Technology</span>
+                        <h5 class="card-title fw-bold">AI in Education: Opportunities and Challenges</h5>
+                        <p class="card-text">Exploring the role of artificial intelligence in transforming educational experiences and administrative processes.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">March 5, 2024</small>
+                            <a href="#" class="btn btn-outline-primary btn-sm">Read</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post 3 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="card h-100 border-0 shadow-sm">
+                    <img src="{% static 'images/blog3.jpg' %}" class="card-img-top" alt="Blog Post">
+                    <div class="card-body">
+                        <span class="badge bg-warning mb-2">Best Practices</span>
+                        <h5 class="card-title fw-bold">Effective Assessment Strategies for Online Courses</h5>
+                        <p class="card-text">Learn how to design assessments that accurately measure student learning while maintaining academic integrity.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">February 28, 2024</small>
+                            <a href="#" class="btn btn-outline-primary btn-sm">Read</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <nav aria-label="Blog pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="newsletter py-5 text-white" style="background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%);">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center" data-aos="fade-up">
+                <h2 class="fw-bold mb-4">Stay Updated</h2>
+                <p class="lead mb-4">Subscribe to our newsletter for the latest updates, tips, and insights in educational technology.</p>
+                <form class="row g-3 justify-content-center">
+                    <div class="col-md-6">
+                        <input type="email" class="form-control form-control-lg" placeholder="Enter your email">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-light btn-lg w-100">Subscribe</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

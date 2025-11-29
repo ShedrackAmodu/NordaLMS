@@ -471,7 +471,7 @@ def course_registration_form(request):
     normal.fontName = "Helvetica"
     normal.fontSize = 12
     normal.leading = 18
-    title = "<b>Nordatech Academy</b>"  # TODO: Make this dynamic
+    title = "<b>NexusTech Academy</b>"  # TODO: Make this dynamic
     title = Paragraph(title.upper(), normal)
     Story.append(title)
     style = getSampleStyleSheet()

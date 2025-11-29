@@ -14,76 +14,140 @@
 {% if request.user.is_superuser %}
 <div class="manage-wrap">
     <a class="btn btn-primary" href="{% url 'add_lecturer' %}"><i class="fas fa-plus"></i>{% trans 'Add Lecturer' %}</a>
-    <a class="btn btn-primary" target="_blank" href="{% url 'lecturer_list_pdf' %}"><i class="fas fa-download"></i> {% trans 'Download pdf' %}</a><!--new-->
+    <a class="btn btn-secondary" href="?export=csv{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}"><i class="fas fa-download"></i>{% trans 'Export CSV' %}</a>
+    <a class="btn btn-warning" target="_blank" href="{% url 'lecturer_list_pdf' %}"><i class="fas fa-file-pdf"></i> {% trans 'PDF' %}</a>
 </div>
 {% endif %}
 
 <p class="title-1"><i class="fas fa-chalkboard-teacher"></i>{% trans 'Lecturers' %}</p>
 
 {% include 'snippets/messages.html' %}
-{% include 'snippets/filter_form.html' %}
 
-<div class="table-responsive table-shadow table-light table-striped m-0 mt-4">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th> {% trans 'ID No.' %}' </th>
-                <th> {% trans 'Full Name' %} </th>
-                <th> {% trans 'Email' %} </th>
-                <th> {% trans 'Mob No.' %} </th>
-                <th> {% trans 'Address/city' %} </th>
-                <th> {% trans 'Last login' %}  </th>
-                {% if request.user.is_superuser %}
-                <th> {% trans 'Action' %} </th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for lecturer in filter.qs %}
-            <tr>
-                <td> {{ forloop.counter }}.</td>
-                <td>{{ lecturer.username }}</td>
-                <td><a href="{% url 'profile_single' lecturer.id %}">{{ lecturer.get_full_name }}</a></td>
-                <td>{{ lecturer.email }}</td>
-                <td>{{ lecturer.phone }}</td>
-                <td>{{ lecturer.address }}</td>
-                <td>{{ lecturer.last_login }}</td>
-                {% if request.user.is_superuser %}
-                <td> 
-                    <div class="dropdown">
-                        <button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa fa-ellipsis-vertical"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="{% url 'staff_edit' pk=lecturer.pk %}"><i class="unstyled me-2 fas fa-edit"></i>{% trans 'Update' %}</a></li>
-                          <li><a class="dropdown-item"  target="_blank" href="{% url 'profile_single' lecturer.id %}?download_pdf=1"><i class="unstyled me-2 fas fa-download"></i>{% trans 'Download PDF' %}</a></li>
-                          <li><a class="dropdown-item text-danger" href="{% url 'lecturer_delete' pk=lecturer.pk %}"><i class="unstyled me-2 fas fa-trash-alt"></i> {% trans 'Delete' %}</a></li>
-                        </ul>
-                    </div>
-                </td>
-                {% endif %}
-                
-                {% empty %}
-                <tr>
-                  <td colspan="8">
-                  <span class="text-danger">
-                    {% trans 'No Lecturer(s).' %}
-                    {% if request.user.is_superuser %}
-                    <a href="{% url 'add_lecturer' %}">
-                    <i class="primary" style="font-size: 22px;">
-                        {% trans 'Add Lecturer Now.' %}
-                    </i>
-                    {% endif %}
-                    </a>
-                  </span>
-                </td>
-                </tr>
+<form method="post">
+    {% csrf_token %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <input type="hidden" name="action" id="action">
+            <label for="bulk_action" class="form-label">Action:</label>
+            <select name="bulk_action" id="bulk_action" class="form-select d-inline-block w-auto">
+                <option value="">---------</option>
+                <option value="bulk_delete">Delete selected lecturers</option>
+                <option value="bulk_activate">Activate selected</option>
+                <option value="bulk_deactivate">Deactivate selected</option>
+            </select>
+            <button type="submit" class="btn btn-secondary ms-2">Go</button>
+        </div>
+    </div>
 
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+    {% include 'snippets/filter_form.html' %}
+
+    <div class="table-responsive table-shadow table-light table-striped m-0 mt-4">
+        <div class="table-shadow">
+            <table class="table table-light">
+                <thead>
+                    <tr>
+                        {% if request.user.is_superuser %}
+                        <th><input type="checkbox" id="select-all"></th>
+                        {% endif %}
+                        <th>#</th>
+                        <th> {% trans 'ID No.' %} </th>
+                        <th> {% trans 'Full Name' %} </th>
+                        <th> {% trans 'Email' %} </th>
+                        <th> {% trans 'Mob No.' %} </th>
+                        <th> {% trans 'Address/city' %} </th>
+                        <th> {% trans 'Status' %} </th>
+                        <th> {% trans 'Last login' %}  </th>
+                        {% if request.user.is_superuser %}
+                        <th> {% trans 'Action' %} </th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lecturer in filter.qs %}
+                    <tr>
+                        {% if request.user.is_superuser %}
+                        <td><input type="checkbox" name="selected_lecturers" value="{{ lecturer.pk }}"></td>
+                        {% endif %}
+                        <td> {{ forloop.counter }}</td>
+                        <td>{{ lecturer.username }}</td>
+                        <td><a href="{% url 'profile_single' lecturer.id %}">{{ lecturer.get_full_name }}</a></td>
+                        <td>{{ lecturer.email }}</td>
+                        <td>{{ lecturer.phone }}</td>
+                        <td>{{ lecturer.address }}</td>
+                        <td>
+                            {% if lecturer.is_active %}
+                                <span class="badge bg-success">{% trans 'Active' %}</span>
+                            {% else %}
+                                <span class="badge bg-warning">{% trans 'Inactive' %}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ lecturer.last_login }}</td>
+                        {% if request.user.is_superuser %}
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa fa-ellipsis-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                  {% if not lecturer.is_active %}
+                                  <li><a class="dropdown-item" href="{% url 'approve_lecturer' pk=lecturer.pk %}"><i class="unstyled me-2 fas fa-check"></i>{% trans 'Approve' %}</a></li>
+                                  {% endif %}
+                                  <li><a class="dropdown-item" href="{% url 'staff_edit' pk=lecturer.pk %}"><i class="unstyled me-2 fas fa-edit"></i>{% trans 'Update' %}</a></li>
+                                  <li><a class="dropdown-item"  target="_blank" href="{% url 'profile_single' lecturer.id %}?download_pdf=1"><i class="unstyled me-2 fas fa-download"></i>{% trans 'Download PDF' %}</a></li>
+                                  <li><a class="dropdown-item text-danger" href="{% url 'lecturer_delete' pk=lecturer.pk %}"><i class="unstyled me-2 fas fa-trash-alt"></i> {% trans 'Delete' %}</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                        {% endif %}
+
+                        {% empty %}
+                        <tr>
+                          <td colspan="{% if request.user.is_superuser %}10{% else %}9{% endif %}">
+                          <span class="text-danger">
+                            {% trans 'No Lecturer(s).' %}
+                            {% if request.user.is_superuser %}
+                            <a href="{% url 'add_lecturer' %}">
+                            <i class="primary" style="font-size: 22px;">
+                                {% trans 'Add Lecturer Now.' %}
+                            </i>
+                            {% endif %}
+                            </a>
+                          </span>
+                        </td>
+                        </tr>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if is_paginated %}
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <span>Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ paginator.count }} entries</span>
+        <nav>
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page=1&{{ request.GET.urlencode }}">First</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">Previous</a></li>
+                {% endif %}
+                <li class="page-item"><span class="page-link">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">Next</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ paginator.num_pages }}&{{ request.GET.urlencode }}">Last</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</form>
+
+<script>
+    document.getElementById('select-all')?.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('input[name="selected_lecturers"]');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+</script>
+
 {% endblock content %}
-

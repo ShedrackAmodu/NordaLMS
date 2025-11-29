@@ -80,7 +80,7 @@
                 </td>
                 <td></td>
                 <td></td>
-                <td></td>
+                {% if request.user.is_superuser %}<td></td>{% endif %}
             </tr>
 
             </tr>
@@ -88,4 +88,17 @@
         </tbody>
     </table>
 </div>
+
+{% block js %}
+<script>
+$(document).ready(function() {
+    $('.table').DataTable({
+        "dom": 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    });
+});
+</script>
+{% endblock js %}
 {% endblock content %}

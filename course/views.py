@@ -9,10 +9,10 @@ from django.views.generic import CreateView
 from django_filters.views import FilterView
 from django.views.generic import ListView
 
-from accounts.decorators import lecturer_required, student_required
-from accounts.models import Student
+from accounts.decorators import admin_required, lecturer_required, student_required, dep_head_required
+from accounts.models import Student, DepartmentHead
 from core.models import Semester
-from course.filters import CourseAllocationFilter, ProgramFilter
+from course.filters import CourseAllocationFilter, CourseFilter, ProgramFilter
 from course.forms import (
     CourseAddForm,
     CourseAllocationForm,
@@ -23,6 +23,7 @@ from course.forms import (
     DiscussionForm,
     CommentEditForm,
     CommentForm,
+    CourseOfferForm,
 )
 from course.models import (
     Course,
@@ -32,8 +33,11 @@ from course.models import (
     UploadVideo,
     Discussion,
     Comment,
+    CourseOffer,
+    LiveClass,
 )
 from result.models import TakenCourse
+from course.decorators import is_calender_on
 
 
 # ########################################################
@@ -148,8 +152,83 @@ def course_single(request, slug):
     )
 
 
+# ########################################################
+# Course Admin Panel Views
+# ########################################################
+
 @login_required
-@lecturer_required
+@admin_required
+def course_list_view(request):
+    """Django admin-like list view with filters, search, pagination, bulk actions, and export"""
+    # Export functionality
+    if 'export' in request.GET and request.GET['export'] == 'csv':
+        import csv
+        from django.http import HttpResponse
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="courses.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Title', 'Code', 'Program', 'Level', 'Year', 'Semester', 'Elective', 'Credit'])
+
+        filterset = CourseFilter(request.GET)
+        queryset = filterset.qs.order_by('title')
+        for course in queryset:
+            writer.writerow([
+                course.title, course.code, course.program.title, course.level,
+                course.year, course.semester, course.is_elective, course.credit
+            ])
+        return response
+
+    if request.method == "POST":
+        action = request.POST.get('bulk_action')
+        selected_courses = request.POST.getlist('selected_courses')
+
+        if action and selected_courses:
+            courses = Course.objects.filter(pk__in=selected_courses)
+            if action == 'bulk_delete':
+                deleted_count = courses.count()
+                courses.delete()
+                messages.success(request, f"Successfully deleted {deleted_count} course(s).")
+            elif action == 'mark_elective':
+                updated = courses.update(is_elective=True)
+                messages.success(request, f"Marked {updated} course(s) as elective.")
+            elif action == 'mark_core':
+                updated = courses.update(is_elective=False)
+                messages.success(request, f"Marked {updated} course(s) as core.")
+
+        return redirect('course_list')
+
+    # GET request - filtering and display
+    filterset = CourseFilter(request.GET)
+    queryset = filterset.qs
+
+    # Ordering
+    order_by = request.GET.get('o', 'title')
+    if order_by.startswith('-'):
+        queryset = queryset.order_by(order_by, 'title')
+    else:
+        queryset = queryset.order_by(order_by)
+
+    # Pagination
+    paginator = Paginator(queryset, 25)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'filter': filterset,
+        'filter.qs': page_obj,
+        'title': "Courses",
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'is_paginated': page_obj.has_other_pages(),
+        'order_by': order_by,
+    }
+    return render(request, "course/course_list.html", context)
+
+
+@login_required
+@admin_required
 def course_add(request, pk):
     program = get_object_or_404(Program, pk=pk)
 
@@ -173,7 +252,7 @@ def course_add(request, pk):
 
 
 @login_required
-@lecturer_required
+@admin_required
 def course_edit(request, slug):
     course = get_object_or_404(Course, slug=slug)
 
@@ -193,12 +272,76 @@ def course_edit(request, slug):
 
 
 @login_required
-@lecturer_required
+@admin_required
 def course_delete(request, slug):
     course = get_object_or_404(Course, slug=slug)
     course.delete()
     messages.success(request, f"Course '{course.title}' has been deleted.")
     return redirect("program_detail", pk=course.program.id)
+
+
+@login_required
+@admin_required
+def course_add_admin(request):
+    if request.method == "POST":
+        form = CourseAddForm(request.POST)
+        if form.is_valid():
+            course = form.save()
+            messages.success(request, f"Course '{course.title}' has been added.")
+            return redirect("course_list")
+        messages.error(request, "Please correct the errors below.")
+    else:
+        form = CourseAddForm()
+
+    return render(
+        request,
+        "course/course_add.html",
+        {"title": "Add Course", "form": form},
+    )
+
+
+@login_required
+@admin_required
+def course_edit_admin(request, slug):
+    course = get_object_or_404(Course, slug=slug)
+
+    if request.method == "POST":
+        form = CourseAddForm(request.POST, instance=course)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Course '{course.title}' has been updated.")
+            return redirect("course_list")
+        messages.error(request, "Please correct the errors below.")
+    else:
+        form = CourseAddForm(instance=course)
+
+    return render(
+        request, "course/course_add.html", {"title": "Edit Course", "form": form}
+    )
+
+
+@login_required
+@admin_required
+def course_delete_admin(request, slug):
+    course = get_object_or_404(Course, slug=slug)
+    course.delete()
+    messages.success(request, f"Course '{course.title}' has been deleted.")
+    return redirect("course_list")
+
+@login_required
+@admin_required
+def course_history(request, slug):
+    course = get_object_or_404(Course, slug=slug)
+    # Use ActivityLog or Django's LogEntry
+    logs = ActivityLog.objects.filter(
+        message__icontains=f"Course '{course.title}'"
+    ).order_by('-created_at')[:50]
+    context = {
+        'course': course,
+        'logs': logs,
+        'title': f"Change History for {course.title}",
+    }
+    return render(request, 'core/course_history.html', context)
 
 
 # ########################################################
@@ -441,6 +584,8 @@ def course_registration(request):
             level=student.level,
         ).exclude(id__in=taken_course_ids).order_by("year")
 
+        # During add/drop period, show all eligible courses (removed department head dependency)
+
         # Calculate available course credits
         for course in courses:
             if course.semester == "First":
@@ -469,7 +614,7 @@ def course_registration(request):
         "student": student,
         "no_course_is_registered": registered_courses.count() == 0,
         "all_courses_are_registered": courses.count() == 0 and registered_courses.count() > 0,
-        "is_calender_on": True,
+        "is_calender_on": is_calender_on,
     }
 
     return render(request, "course/course_registration.html", context)
@@ -487,6 +632,48 @@ def course_drop(request):
             TakenCourse.objects.filter(student=student, course=course).delete()
         messages.success(request, "Courses dropped successfully!")
         return redirect("course_registration")
+
+
+@login_required
+@dep_head_required
+def department_add_drop(request):
+    from accounts.models import DepartmentHead
+    dep_head = get_object_or_404(DepartmentHead, user=request.user)
+    current_semester = Semester.objects.filter(is_current_semester=True).first()
+
+    if not current_semester:
+        messages.error(request, "No active semester found.")
+        return redirect("dashboard")
+
+    is_add_drop_open = current_semester.is_add_drop_open
+
+    offer = CourseOffer.objects.filter(dep_head=dep_head).first()
+
+    if request.method == "POST":
+        if not is_add_drop_open:
+            messages.error(request, "Add/Drop period is not active.")
+            return redirect("department_add_drop")
+
+        form = CourseOfferForm(request.POST, user=request.user, instance=offer)
+        if form.is_valid():
+            offer = form.save(commit=False)
+            offer.dep_head = dep_head
+            offer.save()
+            form.save_m2m()
+            messages.success(request, "Offered courses updated successfully!")
+            return redirect("department_add_drop")
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = CourseOfferForm(user=request.user, instance=offer)
+
+    context = {
+        "form": form,
+        "current_semester": current_semester,
+        "is_add_drop_open": is_add_drop_open,
+        "dep_head": dep_head,
+    }
+    return render(request, "course/department_add_drop.html", context)
 
 
 # ########################################################

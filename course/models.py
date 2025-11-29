@@ -265,13 +265,15 @@ class CourseOffer(models.Model):
     """NOTE: Only department head can offer semester courses"""
 
     dep_head = models.ForeignKey("accounts.DepartmentHead", on_delete=models.CASCADE)
+    courses = models.ManyToManyField(Course, related_name="offered_courses")
 
     def __str__(self):
         return str(self.dep_head)
-    
+
 class Discussion(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="discussions")
     title = models.CharField(max_length=200)
+    content = models.TextField(blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -321,5 +323,4 @@ class LiveClass(models.Model):
         return f"https://meet.jit.si/{self.meeting_code}"
 
     def __str__(self):
-        return self.title   
-
+        return self.title

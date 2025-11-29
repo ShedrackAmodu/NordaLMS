@@ -2,14 +2,19 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 
 from .models import Program, Course, CourseAllocation, Upload
-from modeltranslation.admin import TranslationAdmin
 
-class ProgramAdmin(TranslationAdmin):
+
+class ProgramAdmin(admin.ModelAdmin):
     pass
-class CourseAdmin(TranslationAdmin):
+
+
+class CourseAdmin(admin.ModelAdmin):
     pass
-class UploadAdmin(TranslationAdmin):
+
+
+class UploadAdmin(admin.ModelAdmin):
     pass
+
 
 admin.site.register(Program, ProgramAdmin)
 admin.site.register(Course, CourseAdmin)

@@ -13,27 +13,68 @@
 	  </h1>
   </div>
 
-  <form action="" method="POST" id="login-form">
+<form action="" method="POST" id="login-form">
 	  {% csrf_token %}
+	  <div class="mb-3">
+		<label for="role_id" class="form-label">{{ form.role.label }}</label>
+		{{ form.role }}
+		{% if form.role.errors %}
+		  <div class="text-danger small mt-1">
+		    {% for error in form.role.errors %}
+		      {{ error }}
+		    {% endfor %}
+		  </div>
+		{% endif %}
+	  </div>
 	  <div class="row">
 		  <div class="col-lg-6">
-			<h1 class="lead p-2 bg-light">{% trans 'Login Form' %}</h1>
+			<h1 class="lead p-2 bg-light">{% trans 'Register Form' %}</h1>
 			<div class="mb-3">
 				<label for="username_id" class="form-label">{{ form.username.label }}</label>
 				{{ form.username }}
 				<div id="message-wrapper"></div>
+				{% if form.username.errors %}
+				  <div class="text-danger small mt-1">
+				    {% for error in form.username.errors %}
+				      {{ error }}
+				    {% endfor %}
+				  </div>
+				{% endif %}
 			</div>
 			<div class="mb-3">
 				<label for="email_id" class="form-label">{{ form.email.label }}</label>
 				{{ form.email }}
+				{% if form.email.errors %}
+				  <div class="text-danger small mt-1">
+				    {% for error in form.email.errors %}
+				      {{ error }}
+				    {% endfor %}
+				  </div>
+				{% endif %}
 			</div>
 			<div class="mb-3">
 				<label for="password1_id" class="form-label">{{ form.password1.label }}</label>
 				{{ form.password1 }}
+				<div id="password-strength-wrapper"></div>
+				{% if form.password1.errors %}
+				  <div class="text-danger small mt-1">
+				    {% for error in form.password1.errors %}
+				      {{ error }}
+				    {% endfor %}
+				  </div>
+				{% endif %}
 			</div>
 			<div class="mb-3">
 				<label for="password2_id" class="form-label">{{ form.password2.label }}</label>
 				{{ form.password2 }}
+				<div id="password-match-wrapper"></div>
+				{% if form.password2.errors %}
+				  <div class="text-danger small mt-1">
+				    {% for error in form.password2.errors %}
+				      {{ error }}
+				    {% endfor %}
+				  </div>
+				{% endif %}
 			</div>
 		  </div>
 		  <div class="col-lg-6">
@@ -58,19 +99,37 @@
 				<label for="gender_id" class="form-label">{{ form.gender.label }}</label>
 				{{ form.gender }}
 			</div>
-			<div class="mb-3">
+			<div class="mb-3 student-fields" style="display: none;">
 				<label for="level_id" class="form-label">{{ form.level.label }}</label>
 				{{ form.level }}
 			</div>
-			<div class="mb-3">
+			<div class="mb-3 student-fields" style="display: none;">
 				<label for="program_id" class="form-label">{{ form.program.label }}</label>
 				{{ form.program }}
+			</div>
+			<div class="mb-3 parent-fields" style="display: none;">
+				<label for="student_id" class="form-label">{{ form.student.label }}</label>
+				{{ form.student }}
+			</div>
+			<div class="mb-3 parent-fields" style="display: none;">
+				<label for="relation_ship_id" class="form-label">{{ form.relation_ship.label }}</label>
+				{{ form.relation_ship }}
 			</div>
 		  </div>
 	  </div>
 
-    {% if form.errors %}
-          <p class="text-danger my-2"><i class="fas fa-exclamation-circle"></i>{% trans 'Invalid ID & Password.' %}</p><br>
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags == 'error' %}
+          <div class="alert alert-danger mt-3" role="alert">
+            <i class="fas fa-exclamation-circle"></i> {{ message }}
+          </div>
+        {% else %}
+          <div class="alert alert-{{ message.tags }} mt-3" role="alert">
+            {{ message }}
+          </div>
+        {% endif %}
+      {% endfor %}
     {% endif %}
 
     <button type="submit" class="btn btn-primary" id="login-btn"><i class="fas fa-sign-in-alt"></i><small>{% trans 'SIGN UP' %}</small></button>
@@ -112,5 +171,43 @@
 
     })
   })
+
+  // Password matching validation
+  $("#password2_id").on("input", function () {
+    const password1 = $("#password1_id").val();
+    const password2 = $(this).val();
+
+    if (password1 !== password2) {
+      $('#password-match-wrapper').html(`<p class="my-2 text-danger"><span class="bg-error p-2">Passwords do not match</span></p>`)
+    } else {
+      $('#password-match-wrapper').html(`<p class="my-2 text-success"><span class="bg-correct p-2">Passwords match</span></p>`)
+    }
+  })
+
+  $("#password1_id").on("input", function () {
+    const password = $(this).val();
+    if (password.length < 8) {
+      $('#password-strength-wrapper').html(`<p class="my-2 text-warning"><span class="bg-warning p-2">Password should be at least 8 characters long</span></p>`)
+    } else if (!/(?=.*\d)/.test(password) || !/(?=.*[a-z])/.test(password) || !/(?=.*[A-Z])/.test(password)) {
+      $('#password-strength-wrapper').html(`<p class="my-2 text-warning"><span class="bg-warning p-2">Password should contain uppercase, lowercase, and numbers</span></p>`)
+    } else {
+      $('#password-strength-wrapper').html(`<p class="my-2 text-success"><span class="bg-correct p-2">Password strength looks good</span></p>`)
+    }
+  })
+
+  // Role-based field visibility
+  function toggleFields() {
+    const role = $('#role_id').val();
+    $('.student-fields').hide();
+    $('.parent-fields').hide();
+    if (role === 'student') {
+      $('.student-fields').show();
+    } else if (role === 'parent') {
+      $('.parent-fields').show();
+    }
+  }
+
+  $('#role_id').on('change', toggleFields);
+  toggleFields();  // Initial call
 </script>
 {% endblock %}

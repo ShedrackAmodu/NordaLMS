@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load quiz_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4>{% trans "AI Quiz Results" %}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h2 class="text-success">{{ session.score }} / {{ session.questions|length }}</h2>
+                        <p class="text-muted">
+                            {% trans "Completion Time" %}: {{ session.completed_at|timesince:session.started_at }}
+                        </p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5>{% trans "Quiz Details" %}:</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <strong>{% trans "Course" %}:</strong> {{ session.course.title }}
+                            </li>
+                            <li class="list-group-item">
+                                <strong>{% trans "Difficulty" %}:</strong> {{ session.config.get_difficulty_display }}
+                            </li>
+                            <li class="list-group-item">
+                                <strong>{% trans "Question Types" %}:</strong> 
+                                {{ session.config.question_types|join:", " }}
+                            </li>
+                            {% if session.config.topics %}
+                            <li class="list-group-item">
+                                <strong>{% trans "Topics" %}:</strong> {{ session.config.topics }}
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5>{% trans "Questions Review" %}:</h5>
+                        {% for question in session.questions %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6>{{ forloop.counter }}. {{ question.content }}</h6>
+                                <p><small class="text-muted">Type: {{ question.type|title }}</small></p>
+                                <p class="text-muted"><strong>Explanation:</strong> {{ question.explanation }}</p>
+                                <div class="alert alert-info">
+                                    <strong>{% trans "Correct Answer" %}:</strong>
+                                    {% if question.type == 'multiple_choice' %}
+                                        {{ question.options|index:question.correct_answer }}
+                                    {% elif question.type == 'true_false' %}
+                                        {{ question.correct_answer }}
+                                    {% else %}
+                                        {{ question.correct_answer }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="text-center">
+                        <a href="{% url 'ai_quiz_config' %}" class="btn btn-primary">{% trans "Take Another AI Quiz" %}</a>
+                        <a href="{% url 'ai_quiz_history' %}" class="btn btn-secondary">{% trans "View Quiz History" %}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

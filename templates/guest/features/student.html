@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Student Features | NexusLMS{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="student-hero" style="background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%); color: white; padding: 120px 0 80px;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <h1 class="display-4 fw-bold mb-4">Features for Students</h1>
+                <p class="lead mb-4">Empowering your learning journey with intuitive tools and personalized experiences.</p>
+                <p>Access your courses, track progress, collaborate with peers, and achieve academic success with NexusLMS.</p>
+                <a href="{% url 'register' %}" class="btn btn-light btn-lg mt-3">Start Learning Today</a>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <img src="{% static 'images/student-hero.jpg' %}" alt="Student Features" class="img-fluid rounded shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Key Features -->
+<section class="key-features py-5" style="padding: 100px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5" data-aos="fade-up">
+                <h2 class="fw-bold mb-4">Key Features for Students</h2>
+                <p class="lead">Everything you need to succeed in your academic journey</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-4">
+                        <i class="fas fa-graduation-cap fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Personalized Dashboard</h4>
+                    <p>Access all your courses, assignments, and grades in one centralized location with a personalized learning dashboard.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-4">
+                        <i class="fas fa-tasks fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Assignment Management</h4>
+                    <p>Submit assignments online, track deadlines, receive feedback, and monitor your progress across all courses.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-4">
+                        <i class="fas fa-question-circle fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Interactive Quizzes</h4>
+                    <p>Take timed quizzes with instant feedback, review answers, and track your performance over time.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-4">
+                        <i class="fas fa-users fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Collaboration Tools</h4>
+                    <p>Work with classmates on group projects, participate in discussion forums, and share resources easily.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-4">
+                        <i class="fas fa-chart-line fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Progress Tracking</h4>
+                    <p>Monitor your academic performance with detailed analytics and visual progress reports.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-4">
+                        <i class="fas fa-mobile-alt fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Mobile Access</h4>
+                    <p>Access your courses and learning materials on any device with our responsive mobile interface.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5 text-white" style="background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%); padding: 100px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center" data-aos="fade-up">
+                <h2 class="fw-bold mb-4">Ready to Enhance Your Learning Experience?</h2>
+                <p class="lead mb-4">Join thousands of students already using NexusLMS to achieve academic success.</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'register' %}" class="btn btn-light btn-lg">Start Free Trial</a>
+                    <a href="{% url 'contact' %}" class="btn btn-outline-light btn-lg">Request Demo</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.feature-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %}

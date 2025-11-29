@@ -1,3 +1,5 @@
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from .utils import (
     generate_student_credentials,
     generate_lecturer_credentials,
@@ -5,23 +7,29 @@ from .utils import (
 )
 
 
-def post_save_account_receiver(instance=None, created=False, *args, **kwargs):
+@receiver(post_save, sender='accounts.User')
+def post_save_account_receiver(sender, instance, created=False, **kwargs):
     """
-    Send email notification
+    Send email notification only on account creation for active accounts
     """
-    if created:
-        if instance.is_student:
-            username, password = generate_student_credentials()
+    if created and instance.is_active and (instance.is_student or instance.is_lecturer):
+        # Disconnect signal temporarily to avoid recursion
+        post_save.disconnect(post_save_account_receiver, sender='accounts.User')
+
+        try:
+            # Generate credentials for new accounts
+            if instance.is_student:
+                username, password = generate_student_credentials()
+            else:  # is_lecturer
+                username, password = generate_lecturer_credentials()
+
             instance.username = username
             instance.set_password(password)
-            instance.save()
-            # Send email with the generated credentials
+            instance.save(update_fields=['username', 'password'])
+
+            # Send email with generated credentials
             send_new_account_email(instance, password)
 
-        if instance.is_lecturer:
-            username, password = generate_lecturer_credentials()
-            instance.username = username
-            instance.set_password(password)
-            instance.save()
-            # Send email with the generated credentials
-            send_new_account_email(instance, password)
+        finally:
+            # Reconnect signal
+            post_save.connect(post_save_account_receiver, sender='accounts.User')

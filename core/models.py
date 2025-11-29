@@ -55,6 +55,7 @@ class NewsAndEvents(models.Model):
     title = models.CharField(max_length=200, null=True)
     summary = models.TextField(max_length=1000, blank=True, null=True)
     posted_as = models.CharField(choices=POST, max_length=10)
+    event_date = models.DateField(blank=True, null=True)
     updated_date = models.DateTimeField(auto_now=True, auto_now_add=False, null=True)
     upload_time = models.DateTimeField(auto_now=False, auto_now_add=True, null=True)
 
@@ -80,9 +81,19 @@ class Semester(models.Model):
         Session, on_delete=models.CASCADE, blank=True, null=True
     )
     next_semester_begins = models.DateField(null=True, blank=True)
+    add_drop_start_date = models.DateField(null=True, blank=True)
+    add_drop_end_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.semester}"
+
+    @property
+    def is_add_drop_open(self):
+        if not self.add_drop_start_date or not self.add_drop_end_date:
+            return False
+        from django.utils import timezone
+        today = timezone.now().date()
+        return self.add_drop_start_date <= today <= self.add_drop_end_date
 
 
 class ActivityLog(models.Model):

@@ -58,6 +58,9 @@
                             <i class="fa fa-ellipsis-vertical"></i>
                         </button>
                         <ul class="dropdown-menu">
+                          {% if not student.student.is_active %}
+                          <li><a class="dropdown-item" href="{% url 'approve_student' student.pk %}"><i class="unstyled me-2 fas fa-check"></i>{% trans 'Approve' %}</a></li>
+                          {% endif %}
                           <li><a class="dropdown-item" href="{% url 'student_edit' student.student.pk %}"><i class="unstyled me-2 fas fa-edit"></i>{% trans 'Update' %}</a></li>
                           <li><a class="dropdown-item" target="_blank" href="{% url 'profile_single' student.student.id %}?download_pdf=1"><i class="unstyled me-2 fas fa-download"></i>{% trans 'Download PDF' %}</a></li>
                           <li><a class="dropdown-item text-danger" href="{% url 'student_delete' student.pk %}"><i class="unstyled me-2 fas fa-trash-alt"></i>{% trans 'Delete' %}</a></li>
@@ -68,7 +71,7 @@
                 
                 {% empty %}
                 <tr>
-                  <td colspan="6">
+                  <td colspan="{% if request.user.is_superuser %}6{% else %}5{% endif %}">
                   <span class="text-danger">
                     {% trans 'No Student.' %}
                     {% if request.user.is_superuser %}
@@ -87,4 +90,17 @@
         </tbody>
     </table>
 </div>
+
+{% block js %}
+<script>
+$(document).ready(function() {
+    $('.table').DataTable({
+        "dom": 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    });
+});
+</script>
+{% endblock js %}
 {% endblock content %}

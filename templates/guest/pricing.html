@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pricing | NexusLMS{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="pricing-hero" style="background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%); color: white; padding: 120px 0 80px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center" data-aos="fade-up">
+                <h1 class="display-4 fw-bold mb-4">Simple, Transparent Pricing</h1>
+                <p class="lead mb-4">Choose the perfect plan for your institution. All plans include core features with no hidden fees.</p>
+                <div class="d-flex justify-content-center align-items-center">
+                    <span class="me-3">Monthly</span>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="billingToggle" checked>
+                        <label class="form-check-label" for="billingToggle">Annual (Save 20%)</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Plans -->
+<section class="pricing-plans py-5" style="padding: 100px 0;">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Basic Plan -->
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="card pricing-card h-100 border-0 shadow-lg">
+                    <div class="card-header text-center py-4" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                        <h3 class="fw-bold text-primary">Basic</h3>
+                        <div class="price monthly">
+                            <span class="h1 fw-bold">$29</span>
+                            <span class="text-muted">/month</span>
+                        </div>
+                        <div class="price annual d-none">
+                            <span class="h1 fw-bold">$279</span>
+                            <span class="text-muted">/year</span>
+                        </div>
+                        <p class="text-muted mb-0">Perfect for small institutions</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Up to 500 students</li>
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Basic course management</li>
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Standard quiz system</li>
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Email support</li>
+                            <li class="mb-3"><i class="fas fa-times text-muted me-2"></i> Advanced analytics</li>
+                            <li class="mb-3"><i class="fas fa-times text-muted me-2"></i> Parent portal</li>
+                            <li class="mb-3"><i class="fas fa-times text-muted me-2"></i> API access</li>
+                        </ul>
+                        <a href="{% url 'register' %}" class="btn btn-outline-primary w-100">Start Free Trial</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pro Plan -->
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="card pricing-card h-100 border-0 shadow-lg" style="transform: scale(1.05); border: 2px solid var(--secondary) !important;">
+                    <div class="card-header text-center py-4 text-white" style="background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%);">
+                        <span class="badge bg-warning position-absolute top-0 start-50 translate-middle px-3 py-2">MOST POPULAR</span>
+                        <h3 class="fw-bold">Professional</h3>
+                        <div class="price monthly">
+                            <span class="h1 fw-bold">$79</span>
+                            <span class="text-light">/month</span>
+                        </div>
+                        <div class="price annual d-none">
+                            <span class="h1 fw-bold">$759</span>
+                            <span class="text-light">/year</span>
+                        </div>
+                        <p class="text-light mb-0">Ideal for growing institutions</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Up to 2,000 students</li>
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Advanced course management</li>
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Full quiz system with analytics</li>
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Priority support</li>
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Advanced analytics dashboard</li>
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Parent portal included</li>
+                            <li class="mb-3"><i class="fas fa-times text-muted me-2"></i> Limited API access</li>
+                        </ul>
+                        <a href="{% url 'register' %}" class="btn btn-primary w-100">Start Free Trial</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="card pricing-card h-100 border-0 shadow-lg">
+                    <div class="card-header text-center py-4" style="background: linear-gradient(135deg, var(--primary) 0%, #2c3e50 100%); color: white;">
+                        <h3 class="fw-bold">Enterprise</h3>
+                        <div class="price monthly">
+                            <span class="h1 fw-bold">$199</span>
+                            <span class="text-light">/month</span>
+                        </div>
+                        <div class="price annual d-none">
+                            <span class="h1 fw-bold">$1,909</span>
+                            <span class="text-light">/year</span>
+                        </div>
+                        <p class="text-light mb-0">For large institutions</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Unlimited students</li>
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Full course ecosystem</li>
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Enterprise-grade security</li>
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> 24/7 dedicated support</li>
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Custom analytics & reporting</li>
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Advanced parent portal</li>
+                            <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Full API access</li>
+                        </ul>
+                        <a href="#contact" class="btn btn-outline-primary w-100">Contact Sales</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Feature Comparison -->
+<section class="feature-comparison py-5 bg-light" style="padding: 100px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5" data-aos="fade-up">
+                <h2 class="fw-bold mb-4">Compare Features</h2>
+                <p class="lead">See how our plans stack up against each other</p>
+            </div>
+        </div>
+        <div class="row" data-aos="fade-up">
+            <div class="col-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Feature</th>
+                                <th>Basic</th>
+                                <th>Professional</th>
+                                <th>Enterprise</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Student Capacity</td>
+                                <td>Up to 500</td>
+                                <td>Up to 2,000</td>
+                                <td>Unlimited</td>
+                            </tr>
+                            <tr>
+                                <td>Course Management</td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Advanced Analytics</td>
+                                <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Parent Portal</td>
+                                <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                            </tr>
+                            <tr>
+                                <td>API Access</td>
+                                <td><i class="fas fa-times text-danger"></i></td>
+                                <td>Limited</td>
+                                <td>Full Access</td>
+                            </tr>
+                            <tr>
+                                <td>Support</td>
+                                <td>Email</td>
+                                <td>Priority</td>
+                                <td>24/7 Dedicated</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5 text-white" style="background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%); padding: 100px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center" data-aos="fade-up">
+                <h2 class="fw-bold mb-4">Ready to Get Started?</h2>
+                <p class="lead mb-4">Join thousands of institutions already using NexusLMS to transform their educational experience.</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'register' %}" class="btn btn-light btn-lg">Start Free Trial</a>
+                    <a href="#contact" class="btn btn-outline-light btn-lg">Schedule a Demo</a>
+                </div>
+                <p class="mt-4 small">
+                    <i class="fas fa-lock me-2"></i>Secure & GDPR Compliant • 
+                    <i class="fas fa-shield-alt me-2"></i>Enterprise-grade Security • 
+                    <i class="fas fa-clock me-2"></i>14-day Free Trial
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const billingToggle = document.getElementById('billingToggle');
+        const monthlyPrices = document.querySelectorAll('.price.monthly');
+        const annualPrices = document.querySelectorAll('.price.annual');
+
+        billingToggle.addEventListener('change', function() {
+            if (this.checked) {
+                monthlyPrices.forEach(price => price.classList.add('d-none'));
+                annualPrices.forEach(price => price.classList.remove('d-none'));
+            } else {
+                monthlyPrices.forEach(price => price.classList.remove('d-none'));
+                annualPrices.forEach(price => price.classList.add('d-none'));
+            }
+        });
+    });
+</script>
+{% endblock %}

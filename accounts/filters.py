@@ -7,15 +7,19 @@ class LecturerFilter(django_filters.FilterSet):
     username = django_filters.CharFilter(lookup_expr="exact", label="")
     name = django_filters.CharFilter(method="filter_by_name", label="")
     email = django_filters.CharFilter(lookup_expr="icontains", label="")
+    search = django_filters.CharFilter(method="filter_search", label="Search")
 
     class Meta:
         model = User
-        fields = ["username", "email"]
+        fields = ["username", "email", "is_active"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Change html classes and placeholders
+        self.filters["search"].field.widget.attrs.update(
+            {"class": "au-input", "placeholder": "Search lecturers..."}
+        )
         self.filters["username"].field.widget.attrs.update(
             {"class": "au-input", "placeholder": "ID No."}
         )
@@ -29,6 +33,14 @@ class LecturerFilter(django_filters.FilterSet):
     def filter_by_name(self, queryset, name, value):
         return queryset.filter(
             Q(first_name__icontains=value) | Q(last_name__icontains=value)
+        )
+
+    def filter_search(self, queryset, name, value):
+        return queryset.filter(
+            Q(username__icontains=value) |
+            Q(first_name__icontains=value) |
+            Q(last_name__icontains=value) |
+            Q(email__icontains=value)
         )
 
 

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Department Add/Drop {% endblock %}
+
+{% block main %}
+
+<div class="row">
+  <div class="col s12">
+    <div class="card">
+      <div class="card-content">
+        <h4 class="card-title">Manage Offered Courses for Add/Drop</h4>
+        <p class="text-muted">
+          Current Semester: {{ current_semester.semester }} - {{ current_semester.session.session }}
+        </p>
+        {% if is_add_drop_open %}
+          <div class="card-panel green lighten-5">
+            <span class="green-text">Add/Drop period is open.</span>
+          </div>
+        {% else %}
+          <div class="card-panel red lighten-5">
+            <span class="red-text">
+              Add/Drop period is closed. Dates: {{ current_semester.add_drop_start_date }} to {{ current_semester.add_drop_end_date }}
+            </span>
+          </div>
+        {% endif %}
+        <div class="form-container">
+          <form method="post">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col s12">
+                <h6>Select courses to offer for add/drop:</h6>
+                {{ form.courses }}
+              </div>
+            </div>
+            <div class="row">
+              <div class="col s12">
+                <button type="submit" class="btn waves-effect waves-light">
+                  Update Offered Courses
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,5 +1,8 @@
+import logging
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+
+logger = logging.getLogger(__name__)
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
@@ -14,6 +17,7 @@ from django.views.generic import (
 
 from accounts.decorators import lecturer_required
 from .forms import (
+    AIQuizConfigForm,
     EssayForm,
     MCQuestionForm,
     MCQuestionFormSet,
@@ -23,12 +27,15 @@ from .forms import (
 from .models import (
     Course,
     EssayQuestion,
+    GroqQuizConfig,
+    GroqQuizSession,
     MCQuestion,
     Progress,
     Question,
     Quiz,
     Sitting,
 )
+from .gemini_quiz import GroqQuizGenerator
 
 
 # ########################################################
@@ -358,134 +365,209 @@ class QuizTake(FormView):
         return render(self.request, self.result_template_name, results)
 
 
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.decorators import method_decorator
-from django.views.generic import (
-    CreateView,
-    DetailView,
-    FormView,
-    ListView,
-    TemplateView,
-    UpdateView,
-)
+# ########################################################
+# AI Quiz Views
+# ########################################################
 
-from accounts.decorators import lecturer_required
-from .forms import (
-    EssayForm,
-    MCQuestionForm,
-    MCQuestionFormSet,
-    QuestionForm,
-    QuizAddForm,
-)
-from .models import Course, EssayQuestion, MCQuestion, Progress, Question, Quiz, Sitting
-
-
-# Quiz Management Views
-@method_decorator([login_required, lecturer_required], name="dispatch")
-class QuizCreateView(CreateView):
-    model = Quiz
-    form_class = QuizAddForm
-    template_name = "quiz/quiz_form.html"
+@method_decorator([login_required], name="dispatch")
+class AIConfigView(CreateView):
+    model = GroqQuizConfig
+    form_class = AIQuizConfigForm
+    template_name = "quiz/ai_quiz_config.html"
 
     def get_initial(self):
         initial = super().get_initial()
-        course = get_object_or_404(Course, slug=self.kwargs["slug"])
-        initial["course"] = course
+        # Set default course based on URL parameter or something
         return initial
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["course"] = get_object_or_404(Course, slug=self.kwargs["slug"])
-        return context
+    def get_queryset(self):
+        return GroqQuizConfig.objects.filter(user=self.request.user)
 
     def form_valid(self, form):
-        form.instance.course = get_object_or_404(Course, slug=self.kwargs["slug"])
-        with transaction.atomic():
-            self.object = form.save()
-            return redirect(
-                "mc_create", slug=self.kwargs["slug"], quiz_id=self.object.id
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        from django.urls import reverse
+        return reverse('ai_quiz_start', kwargs={'pk': self.object.pk})
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # For lecturers, only show courses they are allocated to
+        if self.request.user.is_lecturer and not self.request.user.is_superuser:
+            form.fields['course'].queryset = Course.objects.filter(
+                allocated_course__lecturer=self.request.user
             )
+        # Students and superusers can see all courses
+        return form
+
+
+from .decorators import handle_ai_errors
+
+@login_required
+@handle_ai_errors
+def ai_quiz_start(request, pk):
+    config = get_object_or_404(GroqQuizConfig, pk=pk, user=request.user)
+
+    # Validate configuration before proceeding
+    if not settings.GROQ_API_KEY:
+        messages.error(request, "AI quiz service is currently unavailable.")
+        return redirect('ai_quiz_config')
+
+    try:
+        # Generate questions using Groq
+        generator = GroqQuizGenerator()
+
+        # Ensure question_types is properly formatted
+        question_types = config.question_types
+        if isinstance(question_types, str):
+            question_types = [question_types]
+
+        logger.info(f"Starting AI quiz generation for user {request.user.username}")
+
+        questions = generator.generate_questions(
+            course=config.course,
+            difficulty=config.difficulty,
+            num_questions=config.num_questions,
+            question_types=question_types,
+            topics=config.topics
+        )
+
+        if not questions:
+            messages.warning(request, "No questions could be generated. Using fallback questions.")
+            questions = generator._get_fallback_questions(config.num_questions)
+
+        # Create quiz session
+        questions_per_session = config.questions_per_session
+        session_questions = questions[:questions_per_session]
+
+        session = GroqQuizSession.objects.create(
+            user=request.user,
+            course=config.course,
+            config=config,
+            questions=questions,
+            session_questions=session_questions,
+        )
+
+        messages.success(request, f"AI quiz generated with {len(session.questions)} questions!")
+        return redirect('ai_quiz_take', session_id=session.id)
+
+    except Exception as e:
+        logger.error(f"Quiz generation failed: {str(e)}")
+        messages.error(request, f"Failed to start quiz: {str(e)}")
+        return redirect('ai_quiz_config')
 
 
 @login_required
-def quiz_list(request, slug):
-    course = get_object_or_404(Course, slug=slug)
-    quizzes = Quiz.objects.filter(course=course, draft=False).order_by("-timestamp")
-    category_filter = request.GET.get("category")
-    if category_filter:
-        quizzes = quizzes.filter(category=category_filter)
-    return render(
-        request, "quiz/quiz_list.html", {"quizzes": quizzes, "course": course}
-    )
+@handle_ai_errors
+def ai_quiz_status(request):
+    """Check if AI quiz service is properly configured"""
+    status = {
+        'groq_configured': bool(settings.GROQ_API_KEY),
+        'api_key_length': len(settings.GROQ_API_KEY) if settings.GROQ_API_KEY else 0,
+        'model': getattr(settings, 'GROQ_MODELS', {}).get('quiz_generation', 'llama3-70b-8192')
+    }
+
+    # Test API connection
+    if status['groq_configured']:
+        try:
+            generator = GroqQuizGenerator()
+            test_response = generator.client.chat.completions.create(
+                model=status['model'],
+                messages=[{"role": "user", "content": "Say 'OK'"}],
+                max_tokens=5
+            )
+            status['api_working'] = True
+            status['api_test'] = "Success"
+        except Exception as e:
+            status['api_working'] = False
+            status['api_test'] = str(e)
+
+    return render(request, 'quiz/ai_quiz_status.html', {'status': status})
 
 
-# Quiz Attempt Views
 @method_decorator([login_required], name="dispatch")
-class QuizTake(FormView):
-    form_class = QuestionForm
-    template_name = "quiz/question.html"
-    result_template_name = "quiz/result.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.quiz = get_object_or_404(Quiz, slug=self.kwargs["slug"])
-        self.course = get_object_or_404(Course, pk=self.kwargs["pk"])
-        self.sitting = Sitting.objects.user_sitting(
-            request.user, self.quiz, self.course
-        )
-
-        if not self.sitting:
-            messages.info(request, "You have already completed this quiz.")
-            return redirect("quiz_index", slug=self.course.slug)
-
-        self.question = self.sitting.get_first_question()
-        self.progress = self.sitting.progress()
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        progress, _ = Progress.objects.get_or_create(user=self.request.user)
-        guess = form.cleaned_data["answers"]
-        is_correct = self.question.check_if_correct(guess)
-
-        if is_correct:
-            self.sitting.add_to_score(1)
-            progress.update_score(self.question, 1, 1)
-        else:
-            self.sitting.add_incorrect_question(self.question)
-            progress.update_score(self.question, 0, 1)
-
-        self.sitting.add_user_answer(self.question, guess)
-        self.sitting.remove_first_question()
-        self.question = self.sitting.get_first_question()
-        self.progress = self.sitting.progress()
-
-        if not self.question:
-            return self.final_result_user()
-        return self.get(self.request)
-
-    def final_result_user(self):
-        self.sitting.mark_quiz_complete()
-        results = {
-            "course": self.course,
-            "quiz": self.quiz,
-            "score": self.sitting.get_current_score,
-            "max_score": self.sitting.get_max_score,
-            "percent": self.sitting.get_percent_correct,
-            "sitting": self.sitting,
-        }
-        return render(self.request, self.result_template_name, results)
-
-
-# User Progress Views
-@method_decorator([login_required], name="dispatch")
-class QuizUserProgressView(TemplateView):
-    template_name = "quiz/progress.html"
+class AIQuizTakeView(TemplateView):
+    template_name = "quiz/ai_quiz_take.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        progress, _ = Progress.objects.get_or_create(user=self.request.user)
-        context["cat_scores"] = progress.list_all_cat_scores()
-        context["exams"] = progress.show_exams()
+        session_id = self.kwargs['session_id']
+        session = get_object_or_404(GroqQuizSession, id=session_id, user=self.request.user)
+
+        current_question = session.get_current_question()
+        progress_info = session.get_session_progress()
+
+        context.update({
+            'session': session,
+            'question': current_question,
+            'session_progress': progress_info['session_progress'],
+            'total_progress': progress_info['total_progress'],
+            'question_number': session.current_question_index + 1,
+            'total_questions_in_session': len(session.session_questions),
+            'total_questions_overall': progress_info['total_questions'],
+            'can_continue': session.can_continue_to_next_session(),
+            'questions_per_session': session.config.questions_per_session,
+        })
         return context
+
+
+@login_required
+def ai_quiz_submit(request, session_id):
+    if request.method == 'POST':
+        session = get_object_or_404(GroqQuizSession, id=session_id, user=request.user)
+        answer = request.POST.get('answer')
+        continue_quiz = request.POST.get('continue_quiz')
+
+        if answer is not None:
+            is_correct = session.submit_answer(answer)
+
+            # Check if current session is complete
+            if session.current_question_index >= len(session.session_questions):
+                # If there are more questions and user wants to continue
+                if session.can_continue_to_next_session() and continue_quiz:
+                    session.start_next_session()
+                    messages.info(request, f"Session {session.session_number} complete! Starting session {session.session_number + 1}")
+                    return redirect('ai_quiz_take', session_id=session_id)
+                # If there are no more questions or user doesn't want to continue
+                else:
+                    session.completed = True
+                    from django.utils.timezone import now
+                    session.completed_at = now()
+                    session.save()
+                    return redirect('ai_quiz_result', session_id=session_id)
+
+            return redirect('ai_quiz_take', session_id=session_id)
+
+    return redirect('ai_quiz_take', session_id=session_id)
+
+
+@login_required
+def ai_quiz_continue(request, session_id):
+    """Continue to the next session if available"""
+    session = get_object_or_404(GroqQuizSession, id=session_id, user=request.user)
+
+    if session.can_continue_to_next_session():
+        session.start_next_session()
+        messages.info(request, f"Continuing to session {session.session_number} of questions.")
+    else:
+        messages.warning(request, "No more questions available.")
+
+    return redirect('ai_quiz_take', session_id=session_id)
+
+
+@method_decorator([login_required], name="dispatch")
+class AIQuizResultView(DetailView):
+    model = GroqQuizSession
+    template_name = "quiz/ai_quiz_result.html"
+    context_object_name = 'session'
+    pk_url_kwarg = 'session_id'
+
+    def get_queryset(self):
+        return GroqQuizSession.objects.filter(user=self.request.user)
+
+
+@login_required
+def ai_quiz_history(request):
+    sessions = GroqQuizSession.objects.filter(user=request.user, completed=True).order_by('-completed_at')
+    return render(request, 'quiz/ai_quiz_history.html', {'sessions': sessions})

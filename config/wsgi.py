@@ -10,14 +10,15 @@ https://docs.djangoproject.com/en/2.2/howto/deployment/wsgi/
 import os
 import sys
 
-# Add the project directory to the sys.path
-path = '/home/LearningManagementSystem/NordaLMS'
-if path not in sys.path:
-    sys.path.insert(0, '/home/LearningManagementSystem/NordaLMS')
+# Add the project directory to the sys.path - flexible for both local and production
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if base_dir not in sys.path:
+    sys.path.insert(0, base_dir)
 
-# Activate virtualenv
-activate_env=os.path.expanduser('/home/LearningManagementSystem/myenv/bin/activate_this.py')
-exec(open(activate_env).read(), {'__file__': activate_env})
+# Virtual environment activation - only for production deployment
+if os.path.exists('/home/LearningManagementSystem/myenv/bin/activate_this.py'):
+    activate_env = '/home/LearningManagementSystem/myenv/bin/activate_this.py'
+    exec(open(activate_env).read(), {'__file__': activate_env})
 
 from django.core.wsgi import get_wsgi_application
 

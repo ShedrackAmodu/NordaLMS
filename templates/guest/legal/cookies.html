@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cookie Policy | NexusLMS{% endblock %}
+
+{% block content %}
+<section class="cookies-hero" style="background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%); color: white; padding: 120px 0 80px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center" data-aos="fade-up">
+                <h1 class="display-4 fw-bold mb-4">Cookie Policy</h1>
+                <p class="lead mb-4">Learn how we use cookies and similar technologies to enhance your experience.</p>
+                <p class="small">Last updated: March 15, 2024</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cookies-content py-5" style="padding: 100px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="cookies-section mb-5" data-aos="fade-up">
+                    <h2 class="fw-bold mb-4">1. What Are Cookies?</h2>
+                    <p>Cookies are small text files that are placed on your computer or mobile device when you visit our website. They are widely used to make websites work more efficiently and provide information to the website owners.</p>
+                </div>
+
+                <div class="alert alert-info" data-aos="fade-up">
+                    <h5>Cookie Preferences</h5>
+                    <p>Manage your cookie preferences for this website:</p>
+                    <button class="btn btn-primary mt-3" onclick="alert('Cookie preferences saved!')">Save Preferences</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

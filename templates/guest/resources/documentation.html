@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Documentation | NexusLMS{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="docs-hero" style="background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%); color: white; padding: 120px 0 80px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center" data-aos="fade-up">
+                <h1 class="display-4 fw-bold mb-4">Documentation & Guides</h1>
+                <p class="lead mb-4">Comprehensive resources to help you get the most out of NexusLMS</p>
+                <div class="search-box mx-auto" style="max-width: 500px;">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search documentation...">
+                        <button class="btn btn-primary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Documentation Content -->
+<section class="docs-content py-5" style="padding: 100px 0;">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3 mb-4" data-aos="fade-right">
+                <div class="docs-sidebar sticky-top" style="top: 100px;">
+                    <h5 class="fw-bold mb-3">Documentation</h5>
+                    <div class="list-group list-group-flush">
+                        <a href="#getting-started" class="list-group-item list-group-item-action">Getting Started</a>
+                        <a href="#user-guides" class="list-group-item list-group-item-action">User Guides</a>
+                        <a href="#administration" class="list-group-item list-group-item-action">Administration</a>
+                        <a href="#api" class="list-group-item list-group-item-action">API Documentation</a>
+                        <a href="#faq" class="list-group-item list-group-item-action">FAQ</a>
+                    </div>
+
+                    <h5 class="fw-bold mt-4 mb-3">Quick Links</h5>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'support' %}" class="list-group-item list-group-item-action">Support Center</a>
+                        <a href="{% url 'blog' %}" class="list-group-item list-group-item-action">Blog & Updates</a>
+                        <a href="{% url 'contact' %}" class="list-group-item list-group-item-action">Contact Support</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9" data-aos="fade-left">
+                <!-- Getting Started -->
+                <section id="getting-started" class="docs-section mb-5">
+                    <h2 class="fw-bold mb-4">Getting Started</h2>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-rocket text-primary me-2"></i>Quick Start Guide</h5>
+                                    <p class="card-text">Step-by-step guide to set up your NexusLMS account and start using the platform.</p>
+                                    <a href="#" class="btn btn-outline-primary">Read Guide</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-video text-primary me-2"></i>Video Tutorials</h5>
+                                    <p class="card-text">Watch video tutorials covering basic to advanced features of NexusLMS.</p>
+                                    <a href="#" class="btn btn-outline-primary">Watch Videos</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- User Guides -->
+                <section id="user-guides" class="docs-section mb-5">
+                    <h2 class="fw-bold mb-4">User Guides</h2>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-user-graduate fa-2x text-primary mb-3"></i>
+                                    <h5>Student Guide</h5>
+                                    <p>Complete guide for students using NexusLMS for their courses and assignments.</p>
+                                    <a href="#" class="btn btn-outline-primary">View Guide</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-chalkboard-teacher fa-2x text-primary mb-3"></i>
+                                    <h5>Lecturer Guide</h5>
+                                    <p>Comprehensive guide for educators managing courses and students.</p>
+                                    <a href="#" class="btn btn-outline-primary">View Guide</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-user-tie fa-2x text-primary mb-3"></i>
+                                    <h5>Admin Guide</h5>
+                                    <p>Administrative guide for institutional management and system configuration.</p>
+                                    <a href="#" class="btn btn-outline-primary">View Guide</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- API Documentation -->
+                <section id="api" class="docs-section mb-5">
+                    <h2 class="fw-bold mb-4">API Documentation</h2>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">REST API Reference</h5>
+                            <p>Complete documentation for NexusLMS REST API, including authentication, endpoints, and examples.</p>
+
+                            <div class="code-example mt-4">
+                                <h6>Authentication Example:</h6>
+                                <pre class="bg-dark text-light p-3 rounded"><code>curl -X POST https://api.nexuslms.com/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "your_username", "password": "your_password"}'</code></pre>
+                            </div>
+
+                            <div class="mt-4">
+                                <a href="{% url 'api' %}" class="btn btn-primary">View Full API Documentation</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FAQ -->
+                <section id="faq" class="docs-section">
+                    <h2 class="fw-bold mb-4">Frequently Asked Questions</h2>
+                    <div class="accordion" id="docsAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    How do I reset my password?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#docsAccordion">
+                                <div class="accordion-body">
+                                    Click on "Forgot Password" on the login page and follow the instructions sent to your email.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    Can I access NexusLMS on mobile devices?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#docsAccordion">
+                                <div class="accordion-body">
+                                    Yes, NexusLMS is fully responsive and works on all mobile devices through web browsers.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.docs-sidebar {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.code-example code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+}
+</style>
+{% endblock %}

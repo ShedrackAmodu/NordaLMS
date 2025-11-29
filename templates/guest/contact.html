@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Us | NexusLMS{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="contact-hero" style="background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%); color: white; padding: 120px 0 80px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center" data-aos="fade-up">
+                <h1 class="display-4 fw-bold mb-4">Get In Touch</h1>
+                <p class="lead mb-4">We're here to help you transform your educational institution. Reach out to us with any questions or to schedule a demo.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form & Info -->
+<section class="contact-main py-5" style="padding: 100px 0;">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Contact Form -->
+            <div class="col-lg-8" data-aos="fade-right">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h3 class="mb-0"><i class="fas fa-envelope me-2"></i>Send us a Message</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="contactForm" method="POST">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">Full Name *</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email Address *</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="subject" class="form-label">Subject *</label>
+                                    <input type="text" class="form-control" id="subject" name="subject" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="institution" class="form-label">Institution</label>
+                                    <input type="text" class="form-control" id="institution" name="institution">
+                                </div>
+                                <div class="col-12">
+                                    <label for="message" class="form-label">Message *</label>
+                                    <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="consent" required>
+                                        <label class="form-check-label" for="consent">
+                                            I agree to the privacy policy and terms of service
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-paper-plane me-2"></i>Send Message
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="col-lg-4" data-aos="fade-left">
+                <div class="contact-info">
+                    <h3 class="fw-bold mb-4">Contact Information</h3>
+
+                    <div class="contact-item d-flex mb-4">
+                        <div class="contact-icon me-3">
+                            <i class="fas fa-map-marker-alt fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h5>Our Office</h5>
+                            <p class="text-muted mb-0">123 Education Street<br>Academic City, AC 12345</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item d-flex mb-4">
+                        <div class="contact-icon me-3">
+                            <i class="fas fa-phone fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h5>Phone Number</h5>
+                            <p class="text-muted mb-0">+1 (234) 567-890<br>Mon-Fri, 9:00 AM - 6:00 PM EST</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item d-flex mb-4">
+                        <div class="contact-icon me-3">
+                            <i class="fas fa-envelope fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h5>Email Address</h5>
+                            <p class="text-muted mb-0">support@nexuslms.com<br>sales@nexuslms.com</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item d-flex mb-4">
+                        <div class="contact-icon me-3">
+                            <i class="fas fa-clock fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h5>Office Hours</h5>
+                            <p class="text-muted mb-0">Monday - Friday: 9:00 - 18:00<br>Saturday: 10:00 - 14:00</p>
+                        </div>
+                    </div>
+
+                    <div class="social-links mt-4">
+                        <h5 class="mb-3">Follow Us</h5>
+                        <div class="d-flex gap-3">
+                            <a href="#" class="social-link"><i class="fab fa-facebook-f fa-2x"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-twitter fa-2x"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-linkedin-in fa-2x"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-instagram fa-2x"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section py-5 bg-light" style="padding: 100px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5" data-aos="fade-up">
+                <h2 class="fw-bold mb-4">Frequently Asked Questions</h2>
+                <p class="lead">Quick answers to common questions</p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8" data-aos="fade-up">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                How long does implementation typically take?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Most institutions are up and running within 2-4 weeks. The timeline depends on the size of your institution and specific customization requirements.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                Do you offer training for staff and educators?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes, we provide comprehensive training sessions, documentation, and ongoing support to ensure your team is confident using NexusLMS.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                Can we integrate with our existing systems?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Absolutely. NexusLMS offers API access and supports integration with popular student information systems, authentication providers, and other educational tools.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                What kind of support do you provide?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                We offer email support for all plans, with priority support for Professional and 24/7 dedicated support for Enterprise customers.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-check-circle me-2"></i>Message Sent Successfully</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                <h4>Thank You!</h4>
+                <p class="mb-0">Your message has been received. We'll get back to you within 24 hours.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.contact-icon {
+    width: 50px;
+    text-align: center;
+}
+
+.social-link {
+    color: var(--primary);
+    transition: color 0.3s;
+}
+
+.social-link:hover {
+    color: var(--secondary);
+}
+</style>
+{% endblock %}
+
+{% block js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('contactForm');
+
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Simulate form submission
+        const submitBtn = contactForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+        submitBtn.disabled = true;
+
+        // Simulate API call
+        setTimeout(() => {
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+
+            contactForm.reset();
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 2000);
+    });
+});
+</script>
+{% endblock %}

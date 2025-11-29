@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import get_template, render_to_string
@@ -13,9 +14,11 @@ from xhtml2pdf import pisa
 from accounts.decorators import admin_required
 from accounts.filters import LecturerFilter, StudentFilter
 from accounts.forms import (
+    EmailValidationOnForgotPassword,
     ParentAddForm,
     ProfileUpdateForm,
     ProgramUpdateForm,
+    RegistrationForm,
     StaffAddForm,
     StudentAddForm,
 )
@@ -51,19 +54,52 @@ def validate_username(request):
     return JsonResponse(data)
 
 
+def registration_success(request):
+    return render(request, "registration/registration_success.html")
+
+
 def register(request):
     if request.method == "POST":
-        form = StudentAddForm(request.POST)
+        form = RegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Account created successfully.")
-            return redirect("login")
+            user = form.save()
+            role = form.cleaned_data.get('role')
+            if role == 'student':
+                messages.success(request, "Registration successful! Your account is pending approval. You will receive an email once approved.")
+            elif role == 'lecturer':
+                messages.success(request, "Registration successful! Your lecturer account is pending approval. You will receive an email once approved.")
+            elif role == 'parent':
+                messages.success(request, "Registration successful! Your parent account has been created.")
+            return redirect("registration_success")
+        # Form is invalid - the errors will be displayed via form fields and messages
         messages.error(
-            request, "Something is not correct, please fill all fields correctly."
+            request, "Please correct the errors below to complete your registration."
         )
     else:
-        form = StudentAddForm()
+        form = RegistrationForm()
     return render(request, "registration/register.html", {"form": form})
+
+
+class CustomPasswordResetView(PasswordResetView):
+    form_class = EmailValidationOnForgotPassword
+
+    def form_valid(self, form):
+        try:
+            sent_emails = form.save()
+            self.request.session['password_reset_email_sent'] = len(sent_emails or ()) > 0
+        except Exception as e:
+            # If saving fails, assume no emails were sent
+            import logging
+            logging.error(f"Password reset email failed: {e}")
+            self.request.session['password_reset_email_sent'] = False
+        return super().form_valid(form)
+
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['email_sent'] = self.request.session.pop('password_reset_email_sent', False)
+        return context
 
 
 # ########################################################
@@ -250,17 +286,75 @@ def edit_staff(request, pk):
     )
 
 
-@method_decorator([login_required, admin_required], name="dispatch")
-class LecturerFilterView(FilterView):
-    filterset_class = LecturerFilter
-    queryset = User.objects.filter(is_lecturer=True)
-    template_name = "accounts/lecturer_list.html"
-    paginate_by = 10
+@login_required
+@admin_required
+def lecturer_list_view(request):
+    """Django admin-like lecturer list with filters, search, pagination, bulk actions, and export"""
+    # Export functionality
+    if 'export' in request.GET and request.GET['export'] == 'csv':
+        import csv
+        from django.http import HttpResponse
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = "Lecturers"
-        return context
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="lecturers.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['ID No.', 'Full Name', 'Email', 'Phone', 'Address', 'Active', 'Last Login'])
+
+        lecturers = User.objects.filter(is_lecturer=True).order_by('username')
+        for lecturer in lecturers:
+            writer.writerow([
+                lecturer.username, lecturer.get_full_name(), lecturer.email,
+                lecturer.phone, lecturer.address, lecturer.is_active, lecturer.last_login
+            ])
+        return response
+
+    if request.method == "POST":
+        action = request.POST.get('bulk_action')
+        selected_lecturers = request.POST.getlist('selected_lecturers')
+
+        if action and selected_lecturers:
+            lecturers = User.objects.filter(pk__in=selected_lecturers, is_lecturer=True)
+            if action == 'bulk_delete':
+                deleted_count = lecturers.count()
+                lecturers.delete()
+                messages.success(request, f"Successfully deleted {deleted_count} lecturer(s).")
+            elif action == 'bulk_activate':
+                updated = lecturers.filter(is_active=False).update(is_active=True)
+                messages.success(request, f"Activated {updated} lecturer(s).")
+            elif action == 'bulk_deactivate':
+                updated = lecturers.filter(is_active=True).update(is_active=False)
+                messages.success(request, f"Deactivated {updated} lecturer(s).")
+
+        return redirect('lecturer_list')
+
+    # GET request - filtering and display
+    filterset = LecturerFilter(request.GET, queryset=User.objects.filter(is_lecturer=True))
+    queryset = filterset.qs
+
+    # Ordering
+    order_by = request.GET.get('o', 'username')
+    if order_by.startswith('-'):
+        queryset = queryset.order_by(order_by, 'username')
+    else:
+        queryset = queryset.order_by(order_by)
+
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(queryset, 25)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'filter': filterset,
+        'filter.qs': page_obj,
+        'title': "Lecturers",
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'is_paginated': page_obj.has_other_pages(),
+        'order_by': order_by,
+    }
+    return render(request, "accounts/lecturer_list.html", context)
 
 
 @login_required
@@ -289,6 +383,36 @@ def delete_staff(request, pk):
     return redirect("lecturer_list")
 
 
+@login_required
+@admin_required
+def approve_lecturer(request, pk):
+    lecturer = get_object_or_404(User, is_lecturer=True, pk=pk)
+    if lecturer.is_active:
+        messages.warning(request, f"Lecturer {lecturer.get_full_name} is already approved.")
+        return redirect("lecturer_list")
+
+    if request.method == "POST":
+        send_email = request.POST.get("send_email") == "on"
+        lecturer.is_active = True
+        lecturer.save(update_fields=['is_active'])
+
+        if send_email:
+            # Send login email
+            from .utils import send_new_account_email, generate_lecturer_credentials
+            username, password = generate_lecturer_credentials()
+            lecturer.username = username
+            lecturer.set_password(password)
+            lecturer.save(update_fields=['username', 'password'])
+            send_new_account_email(lecturer, password)
+            messages.success(request, f"Lecturer {lecturer.get_full_name} has been approved and login email sent.")
+        else:
+            messages.success(request, f"Lecturer {lecturer.get_full_name} has been approved.")
+
+        return redirect("lecturer_list")
+
+    return render(request, "accounts/approve_lecturer.html", {"lecturer": lecturer})
+
+
 # ########################################################
 # Student Views
 # ########################################################
@@ -301,6 +425,10 @@ def student_add_view(request):
         form = StudentAddForm(request.POST)
         if form.is_valid():
             student = form.save()
+            # For admin-added students, approve immediately
+            student.is_active = True
+            student.is_student = True
+            student.save(update_fields=['is_active', 'is_student'])
             full_name = student.get_full_name
             email = student.email
             messages.success(
@@ -315,6 +443,37 @@ def student_add_view(request):
     return render(
         request, "accounts/add_student.html", {"title": "Add Student", "form": form}
     )
+
+
+@login_required
+@admin_required
+def approve_student(request, pk):
+    student = get_object_or_404(Student, pk=pk)
+    if student.student.is_active:
+        messages.warning(request, f"Student {student.student.get_full_name} is already approved.")
+        return redirect("student_list")
+
+    if request.method == "POST":
+        send_email = request.POST.get("send_email") == "on"
+        student.student.is_active = True
+        student.student.is_student = True
+        student.student.save(update_fields=['is_active', 'is_student'])
+
+        if send_email:
+            # Send login email similar to signal
+            from .utils import send_new_account_email, generate_student_credentials
+            username, password = generate_student_credentials()
+            student.student.username = username
+            student.student.set_password(password)
+            student.student.save(update_fields=['username', 'password'])
+            send_new_account_email(student.student, password)
+            messages.success(request, f"Student {student.student.get_full_name} has been approved and login email sent.")
+        else:
+            messages.success(request, f"Student {student.student.get_full_name} has been approved.")
+
+        return redirect("student_list")
+
+    return render(request, "accounts/approve_student.html", {"student": student})
 
 
 @login_required
@@ -411,6 +570,3 @@ class ParentAdd(CreateView):
     def form_valid(self, form):
         messages.success(self.request, "Parent added successfully.")
         return super().form_valid(form)
-
-
-

@@ -1,0 +1,30 @@
+<div class="modal-header">
+    <h5 class="modal-title">Events for {{ date|date:"F j, Y" }}</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    {% if events %}
+        <div class="list-group">
+            {% for event in events %}
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">{{ event.title }}</h6>
+                        <small class="text-{% if event.posted_as == 'News' %}primary{% else %}purple{% endif %}">
+                            {{ event.posted_as }}
+                        </small>
+                    </div>
+                    <p class="mb-1">{{ event.summary|truncatewords:20 }}</p>
+                    <small>Updated {{ event.updated_date|timesince }} ago</small>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">No events scheduled for this day.</p>
+    {% endif %}
+</div>
+<div class="modal-footer">
+    <a href="{% url 'add_item' %}" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus me-1"></i>Add New Event
+    </a>
+    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+</div>

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}GDPR Compliance | NexusLMS{% endblock %}
+
+{% block content %}
+<section class="gdpr-hero" style="background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%); color: white; padding: 120px 0 80px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center" data-aos="fade-up">
+                <h1 class="display-4 fw-bold mb-4">GDPR Compliance</h1>
+                <p class="lead mb-4">Our commitment to data protection and privacy under the General Data Protection Regulation (GDPR)</p>
+                <p class="small">Last updated: March 15, 2024</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="gdpr-content py-5" style="padding: 100px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="alert alert-success" data-aos="fade-up">
+                    <h5><i class="fas fa-shield-alt me-2"></i>GDPR Compliant</h5>
+                    <p class="mb-0">NexusLMS is fully compliant with the General Data Protection Regulation (GDPR) requirements for data protection and privacy.</p>
+                </div>
+
+                <div class="gdpr-section mb-5" data-aos="fade-up">
+                    <h2 class="fw-bold mb-4">1. Our GDPR Commitment</h2>
+                    <p>The General Data Protection Regulation (GDPR) is a comprehensive data protection law that came into effect on May 25, 2018. NexusLMS is committed to GDPR compliance across our services.</p>
+                </div>
+
+                <div class="gdpr-section mb-5" data-aos="fade-up">
+                    <h2 class="fw-bold mb-4">2. Data Protection Principles</h2>
+                    <p>We adhere to the core principles of GDPR:</p>
+                    <ul>
+                        <li>Lawfulness, Fairness, and Transparency</li>
+                        <li>Purpose Limitation</li>
+                        <li>Data Minimization</li>
+                        <li>Accuracy</li>
+                        <li>Storage Limitation</li>
+                        <li>Integrity and Confidentiality</li>
+                    </ul>
+                </div>
+
+                <div class="gdpr-section" data-aos="fade-up">
+                    <h2 class="fw-bold mb-4">3. Your Rights Under GDPR</h2>
+                    <p>The GDPR provides you with several rights:</p>
+                    <ul>
+                        <li>Right to Access</li>
+                        <li>Right to Rectification</li>
+                        <li>Right to Erasure</li>
+                        <li>Right to Restrict Processing</li>
+                        <li>Right to Data Portability</li>
+                        <li>Right to Object</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

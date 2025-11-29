@@ -1,6 +1,6 @@
 {% extends 'registration/registration_base.html' %}
 {% load i18n %}
-{% block title %}{% trans 'Nordatech Learning Management System - Login' %}{% endblock title %}
+{% block title %}NexusLMS - Login{% endblock title %}
 {% load crispy_forms_tags %}
 {% block content %}
 
@@ -13,8 +13,8 @@
     <div class="card-body">
         <form action="" method="POST" id="login-form">{% csrf_token %}
           <div class="form-group mb-3">
-              <label class="mb-2" for="username_id"><i class="fas fa-address-card me-2"></i>{% trans 'ID Number' %}</label>
-              <input type="text" name="username" id="username_id" class="form-control" required>
+              <label class="mb-2" for="username_id"><i class="fas fa-user me-2"></i>{% trans 'Username or Email' %}</label>
+              <input type="text" name="username" id="username_id" class="form-control" placeholder="Enter your username or email address" required>
               <div id="message-wrapper"></div>
           </div>
           <div class="form-group mb-3">
@@ -43,28 +43,6 @@
     // e.preventDefault();
     $('#login-btn').addClass('disabled')
     $('#login-btn').html(`<i class="fas fa-sign-in-alt"></i> Signining you in . . .`)
-  })
-
-  $("#username").on("input", function () {
-    username = $(this).val();
-
-    $.ajax({
-      url: "/accounts/ajax/validate-username/",
-      data: {
-        username: username
-      },
-      dataType: 'json',
-      success: function (data) {
-        if (data.is_taken) {
-          console.log(data.is_taken);
-          $('#message-wrapper').html(`<p class="my-2 text-danger"><span class="bg-error p-2"><b>${username}</b> already taken :( try another one </span></p>`)
-        }
-        else {
-          $('#message-wrapper').html(`<p class="my-2 text-success"><span class="bg-correct p-2"><b>${username}</b> is valid </span></p>`)
-        }
-      }
-
-    })
   })
 </script>
 {% endblock %}

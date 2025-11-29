@@ -35,21 +35,33 @@
 </div>
 
 <div class="row users-count px-3">
-	<div class="col-6 col-md-3 mb-3 px-2">
-		<div class="card-count p-3">
-			<h3><i class="fas fa-users bg-light-aqua"></i></h3>
-			<div class="text-right">
-				{% trans 'Students' %}
-				<h2>{{ student_count }}</h2>
+	<div class="col-6 col-md-3 mb-4 px-2">
+		<div class="card border-0 shadow-sm p-4 rounded-3 bg-white">
+			<div class="d-flex align-items-center">
+				<div class="flex-shrink-0">
+					<div class="bg-primary bg-opacity-10 rounded-circle p-3">
+						<i class="fas fa-users text-primary fa-2x"></i>
+					</div>
+				</div>
+				<div class="flex-grow-1 text-end">
+					<h6 class="mb-1 text-muted">{% trans 'Students' %}</h6>
+					<h3 class="mb-0 fw-bold">{{ student_count }}</h3>
+				</div>
 			</div>
 		</div>
 	</div>
-	<div class="col-6 col-md-3 mb-3 px-2">
-		<div class="card-count p-3">
-			<h3><i class="fas fa-users bg-light-orange"></i></h3>
-			<div class="text-right">
-				{% trans 'Lecturers' %}
-				<h2>{{ lecturer_count }}</h2>
+	<div class="col-6 col-md-3 mb-4 px-2">
+		<div class="card border-0 shadow-sm p-4 rounded-3 bg-white">
+			<div class="d-flex align-items-center">
+				<div class="flex-shrink-0">
+					<div class="bg-warning bg-opacity-10 rounded-circle p-3">
+						<i class="fas fa-chalkboard-teacher text-warning fa-2x"></i>
+					</div>
+				</div>
+				<div class="flex-grow-1 text-end">
+					<h6 class="mb-1 text-muted">{% trans 'Lecturers' %}</h6>
+					<h3 class="mb-0 fw-bold">{{ lecturer_count }}</h3>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -82,28 +94,37 @@
 	</div>
 	<div class="col-6 col-md-3 mb-3 px-2">
 		<div class="card-count p-3">
-			<h3><i class="fas fa-users bg-light-purple"></i></h3>
+			<h3><i class="fas fa-chart-line bg-light-purple"></i></h3>
 			<div class="text-right">
-				{% trans 'Supervisors' %}
-				<h2>10</h2>
+				{% trans 'Avg Attendance' %}
+				<h2>{{ attendance_avg }}%</h2>
 			</div>
 		</div>
 	</div>
 	<div class="col-6 col-md-3 mb-3 px-2">
 		<div class="card-count p-3">
-			<h3><i class="fas fa-users bg-light-orange"></i></h3>
-			<div class="text-right pl-2">
-				{% trans 'Office Assistance' %}
-				<h2>4</h2>
+			<h3><i class="fas fa-video bg-light-orange"></i></h3>
+			<div class="text-right">
+				{% trans 'Videos' %}
+				<h2>{{ total_videos }}</h2>
 			</div>
 		</div>
 	</div>
 	<div class="col-6 col-md-3 mb-3 px-2">
 		<div class="card-count p-3">
-			<h3><i class="fas fa-users bg-light-aqua"></i></h3>
+			<h3><i class="fas fa-file bg-light-aqua"></i></h3>
 			<div class="text-right">
-				{% trans 'Others' %}
-				<h2>25</h2>
+				{% trans 'Documents' %}
+				<h2>{{ total_docs }}</h2>
+			</div>
+		</div>
+	</div>
+	<div class="col-6 col-md-3 mb-3 px-2">
+		<div class="card-count p-3">
+			<h3><i class="fas fa-book bg-light-red"></i></h3>
+			<div class="text-right">
+				{% trans 'Courses' %}
+				<h2>{{ total_courses }}</h2>
 			</div>
 		</div>
 	</div>
@@ -160,12 +181,28 @@
 	</div>
 </div>
 
+<div class="bg-white p-3 mt-3">
+	<h5 class="border-bottom pb-2">{% trans 'Upcoming Events' %}</h5>
+	<ul class="list-group">
+		{% for event in upcoming_events %}
+		<li class="list-group-item d-flex justify-content-between">
+			<div>{{ event.title }}</div>
+			<div class="text-muted">{{ event.event_date }}</div>
+		</li>
+		{% empty %}
+		<li class="list-group-item text-muted">No upcoming events</li>
+		{% endfor %}
+	</ul>
+</div>
+
 {% endblock content %}
 
 {% block js %}
 
-<script src="{% url 'javascript-catalog' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function gettext(str) { return str; }
+</script>
 <script src="{% static 'js/dashboard.js' %}"></script>
 <script>
 	$('.fa-expand-alt').click(function () {
@@ -179,110 +216,56 @@
 	})
 </script>
 <script>
-	const malesCount = {{ males_count }}
+const malesCount = {{ males_count }}
 const femalesCount = {{ females_count }}
+const student_levels = {{ student_levels|safe }}
+const course_grades = {{ course_grades|safe }}
+const enrollments_per_course = {{ enrollments_per_course|safe }}
+const traffic_labels = {{ traffic_labels|safe }}
+const traffic_counts = {{ traffic_counts|safe }}
 
 $(document).ready(function () {
-
-    // Setup
-    const labels = [
-        gettext('January'),
-        gettext('February'),
-        gettext('March'),
-        gettext('April'),
-        gettext('May'),
-        gettext('June'),
-    ];
-    const data = {
-        labels: labels,
+    // Traffic Chart
+    const trafficData = {
+        labels: traffic_labels,
         datasets: [{
-            label: gettext('Students'),
+            label: gettext('Activity Count'),
             backgroundColor: 'rgba(86, 224, 224, 0.5)',
             borderColor: 'rgb(86, 224, 224)',
             hoverBorderWidth: 3,
-            data: [0, 10, 5, 2, 20, 30, 45]
-        }, {
-            label: gettext('Teachers'),
-            backgroundColor: 'rgba(253, 174, 28, 0.5)',
-            borderColor: 'rgb(253, 174, 28)',
-            hoverBorderWidth: 3,
-            data: [20, 0, 15, 4, 6, 4, 60],
-        }, {
-            label: gettext('Admins'),
-            backgroundColor: 'rgba(203, 31, 255, 0.5)',
-            borderColor: 'rgb(203, 31, 255)',
-            hoverBorderWidth: 3,
-            data: [85, 30, 34, 20, 20, 55, 45],
-        }, {
-            label: gettext('Stuffs'),
-            backgroundColor: 'rgba(255, 19, 157, 0.5)',
-            borderColor: 'rgb(255, 19, 157)',
-            hoverBorderWidth: 3,
-            data: [45, 75, 70, 80, 20, 30, 90],
+            data: traffic_counts
         }]
     };
-
-    var traffic = document.getElementById('traffic');
-    var chart = new Chart(traffic, {
+    var trafficCanvas = document.getElementById('traffic');
+    new Chart(trafficCanvas, {
         type: 'line',
-        data: data,
+        data: trafficData,
         options: {
             plugins: {
                 title: {
                     display: true,
-                    text: gettext('Website Traffic'),
+                    text: gettext('Website Traffic (Activity)'),
                     padding: 15
                 }
             }
         }
     });
 
-    // Setup
-    const labelsEnrollment = [
-        '2016',
-        '2017',
-        '2018',
-        '2019',
-        '2020',
-        '2021',
-    ];
+    // Enrollment Chart
+    const enrollmentLabels = enrollments_per_course.map(item => item.course_title);
+    const enrollmentData = enrollments_per_course.map(item => item.enrollments);
     const dataEnrollment = {
-        labels: labelsEnrollment,
+        labels: enrollmentLabels,
         datasets: [{
-            label: gettext('Comp.S'),
+            label: gettext('Enrollments'),
             backgroundColor: 'rgba(86, 224, 224, 0.5)',
             borderColor: 'rgb(86, 224, 224)',
             hoverBorderWidth: 3,
-            data: [0, 10, 5, 2, 20, 30, 45]
-        }, {
-            label: gettext('Architecture'),
-            backgroundColor: 'rgba(253, 174, 28, 0.5)',
-            borderColor: 'rgb(253, 174, 28)',
-            hoverBorderWidth: 3,
-            data: [20, 0, 15, 4, 6, 4, 60],
-        }, {
-            label: gettext('Civil Eng'),
-            backgroundColor: 'rgba(203, 31, 255, 0.5)',
-            borderColor: 'rgb(203, 31, 255)',
-            hoverBorderWidth: 3,
-            data: [85, 30, 34, 20, 20, 55, 45],
-        }, {
-            label: gettext('Accounting'),
-            backgroundColor: 'rgba(255, 19, 157, 0.5)',
-            borderColor: 'rgb(255, 19, 157)',
-            hoverBorderWidth: 3,
-            data: [45, 75, 70, 80, 20, 30, 90],
-        }, {
-            label: gettext('Business M.'),
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            borderColor: 'rgb(0, 0, 0)',
-            hoverBorderWidth: 3,
-            data: [15, 75, 45, 90, 60, 30, 90],
+            data: enrollmentData
         }]
     };
-
-    var enrollment = document.getElementById('enrollment');
-    var chart = new Chart(enrollement, {
+    var enrollmentCanvas = document.getElementById('enrollement');
+    new Chart(enrollmentCanvas, {
         type: 'bar',
         data: dataEnrollment,
         options: {
@@ -296,45 +279,21 @@ $(document).ready(function () {
         }
     });
 
-    // Average grade setup
-    const labelsGrade = [
-        '2017',
-        '2018',
-        '2019',
-        '2020',
-        '2022',
-    ];
+    // Grades Chart
+    const gradeLabels = course_grades.map(item => item.course_title);
+    const gradeData = course_grades.map(item => item.avg_grade);
     const dataGrade = {
-        labels: labelsGrade,
+        labels: gradeLabels,
         datasets: [{
-            label: gettext("Comp sci."),
+            label: gettext("Average Grade"),
             backgroundColor: 'rgba(86, 224, 224, 0.5)',
             borderColor: 'rgb(86, 224, 224)',
             hoverBorderWidth: 3,
-            data: [0, 10, 5, 2, 20, 30, 45]
-        }, {
-            label: gettext("Civil eng."),
-            backgroundColor: 'rgba(253, 174, 28, 0.5)',
-            borderColor: 'rgb(253, 174, 28)',
-            hoverBorderWidth: 3,
-            data: [20, 0, 15, 4, 6, 4, 60],
-        }, {
-            label: gettext("Architect."),
-            backgroundColor: 'rgba(203, 31, 255, 0.5)',
-            borderColor: 'rgb(203, 31, 255)',
-            hoverBorderWidth: 3,
-            data: [85, 30, 34, 20, 20, 55, 45],
-        }, {
-            label: gettext("Economics"),
-            backgroundColor: 'rgba(255, 19, 157, 0.5)',
-            borderColor: 'rgb(255, 19, 157)',
-            hoverBorderWidth: 3,
-            data: [45, 75, 70, 80, 20, 30, 90],
+            data: gradeData
         }]
     };
-    
-    var students_grade = document.getElementById('students_grade');
-    var chart = new Chart(students_grade, {
+    var gradeCanvas = document.getElementById('students_grade');
+    new Chart(gradeCanvas, {
         type: 'bar',
         data: dataGrade,
         options: {
@@ -348,24 +307,18 @@ $(document).ready(function () {
         }
     });
 
+    // Gender Chart
     const dataGender = {
-        labels: [
-            gettext('Man'),
-            gettext('Women')
-        ],
+        labels: [gettext('Man'), gettext('Women')],
         datasets: [{
             label: gettext("Students Gender Dataset"),
             data: [malesCount, femalesCount],
-            backgroundColor: [
-            'rgb(255, 99, 132)',
-            'rgb(54, 162, 235)'
-            ],
+            backgroundColor: ['rgb(255, 99, 132)', 'rgb(54, 162, 235)'],
             hoverOffset: 4
         }]
     };
-
-    var gender = document.getElementById('gender');
-    var chart = new Chart(gender, {
+    var genderCanvas = document.getElementById('gender');
+    new Chart(genderCanvas, {
         type: 'pie',
         data: dataGender,
         options: {
@@ -379,25 +332,18 @@ $(document).ready(function () {
         }
     });
 
+    // Qualification Chart (static)
     const dataQualification = {
-        labels: [
-            gettext('PHD'),
-            gettext('Masters'),
-            gettext('BSc degree')
-        ],
+        labels: [gettext('PHD'), gettext('Masters'), gettext('BSc degree')],
         datasets: [{
             label: gettext("Lecturer Qualifications Dataset"),
             data: [24, 30, 26],
-            backgroundColor: [
-            'rgb(255, 99, 132)',
-            'rgb(255, 193, 7)',
-            'rgb(54, 162, 235)'
-            ],
+            backgroundColor: ['rgb(255, 99, 132)', 'rgb(255, 193, 7)', 'rgb(54, 162, 235)'],
             hoverOffset: 4
         }]
     };
-    var ethnicity = document.getElementById('ethnicity');
-    var chart = new Chart(ethnicity, {
+    var qualCanvas = document.getElementById('ethnicity');
+    new Chart(qualCanvas, {
         type: 'pie',
         data: dataQualification,
         options: {
@@ -411,25 +357,20 @@ $(document).ready(function () {
         }
     });
 
+    // Levels Chart
+    const levelLabels = student_levels.map(item => item.level);
+    const levelData = student_levels.map(item => item.count);
     const dataLevels = {
-        labels: [
-            gettext('PHD'),
-            gettext('Masters'),
-            gettext('BSc degree')
-        ],
+        labels: levelLabels,
         datasets: [{
             label: gettext("Students level"),
-            data: [14, 30, 56],
-            backgroundColor: [
-            'rgb(255, 99, 132)',
-            'rgb(255, 193, 7)',
-            'rgb(54, 162, 235)'
-            ],
+            data: levelData,
+            backgroundColor: ['rgb(255, 99, 132)', 'rgb(255, 193, 7)', 'rgb(54, 162, 235)'],
             hoverOffset: 4
         }]
     };
-    var language = document.getElementById('language');
-    var chart = new Chart(language, {
+    var levelCanvas = document.getElementById('language');
+    new Chart(levelCanvas, {
         type: 'pie',
         data: dataLevels,
         options: {
@@ -442,8 +383,7 @@ $(document).ready(function () {
             }
         }
     });
-})
-
+});
 </script>
 
 {% endblock %}

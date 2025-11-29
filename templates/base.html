@@ -1,54 +1,112 @@
 {% load static %}
-{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}NexusLMS{% endblock title %}</title>
 
-    <title>{% block title %}DjangoSMS{% endblock title %}</title>
-
-    <link rel="shortcut icon" href="{% static 'img/logo2.jpg' %}" type="image/x-icon">
+    <link
+      rel="icon"
+      href="{% static 'images/logo.png' %}"
+      type="image/png"
+    />
 
     <!-- Fontawesome icons -->
-    <link rel="stylesheet" type="text/css" href="{% static 'vendor/fontawesome-6.5.1/css/all.min.css' %}">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'vendor/fontawesome-6.5.1/css/all.min.css' %}"
+    />
 
     <!-- Bootstrap5 -->
-    <link rel="stylesheet" type="text/css" href="{% static 'vendor/bootstrap-5.3.2/css/bootstrap.min.css' %}">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'vendor/bootstrap-5.3.2/css/bootstrap.min.css' %}"
+    />
 
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css"/>
+
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/style.css' %}"
+    />
+
+    <!-- Modern UI overrides -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/overrides.css' %}"
+    />
 
     <!-- <script src="https://js.stripe.com/v3/"></script> -->
     {% block header %}{% endblock %}
-</head>
+  </head>
 
-<body>
+  <body>
     {% block sidebar %}
-        {% include 'sidebar.html' %}
+      {% if request.user.is_authenticated %}{% include 'sidebar.html' %}{% endif %}
     {% endblock %}
 
     {% block maincontent %}
     <div id="main">
-        {% block topbar %}
-            {% include 'navbar.html' %}
-        {% endblock %}
+      {% block topbar %}
+        {% if request.user.is_authenticated %}
+          {% include 'navbar.html' %}
+        {% endif %}
+      {% endblock %}
 
-        <div class="container-fluid" id="main-content">
-            {% block content %}{% endblock content %}
-        </div>
-
+      <div class="container-fluid px-4" id="main-content" style="max-width: 1400px;">
+        {% block content %}{% endblock %}
+      </div>
     </div>
     {% endblock %}
-    <script src="{% url 'javascript-catalog' %}"></script>
-    <script type="text/javascript" src="{% static 'vendor/jquery-3.7.1/jquery-3.7.1.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'vendor/bootstrap-5.3.2/js/bootstrap.bundle.min.js' %}"></script>
+    <script
+      type="text/javascript"
+      src="{% static 'vendor/jquery-3.7.1/jquery-3.7.1.min.js' %}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{% static 'vendor/bootstrap-5.3.2/js/bootstrap.bundle.min.js' %}"
+    ></script>
+
+    <!-- DataTables & Buttons JS -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 
     <script type="text/javascript" src="{% static 'js/main.js' %}"></script>
 
-    {% block js %}
-    {% endblock js %}
-</body>
+    <!-- Toast notifications -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1060;">
+      <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <i class="fas fa-info-circle me-2 text-primary"></i>
+          <strong class="me-auto" id="toastTitle">Notification</strong>
+          <small class="text-muted">just now</small>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastBody">
+          Hello, world! This is a toast message.
+        </div>
+      </div>
+    </div>
 
+    {% block js %} {% endblock js %}
+  </body>
 </html>

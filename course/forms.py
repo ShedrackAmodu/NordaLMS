@@ -109,7 +109,7 @@ class UploadFormVideo(forms.ModelForm):
 class DiscussionForm(forms.ModelForm):
     class Meta:
         model = Discussion
-        fields = ['title']
+        fields = ['title', 'content']
 
 class CommentForm(forms.ModelForm):
     class Meta:
@@ -125,8 +125,30 @@ class CommentEditForm(forms.ModelForm):
         fields = ['message']
 
 
-from .models import LiveClass
+from .models import LiveClass, CourseOffer
 class LiveClassForm(forms.ModelForm):
     class Meta:
         model = LiveClass
         fields = ["title", "description", "duration","course"]
+
+class CourseOfferForm(forms.ModelForm):
+    courses = forms.ModelMultipleChoiceField(
+        queryset=Course.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=True,
+    )
+
+    class Meta:
+        model = CourseOffer
+        fields = ["courses"]
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user and user.is_dep_head:
+            from accounts.models import DepartmentHead
+            try:
+                dep_head = DepartmentHead.objects.get(user=user)
+                self.fields['courses'].queryset = Course.objects.filter(program=dep_head.department)
+            except DepartmentHead.DoesNotExist:
+                pass

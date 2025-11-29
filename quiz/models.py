@@ -482,3 +482,154 @@ class EssayQuestion(Question):
     def answer_choice_to_string(self, guess):
         return str(guess)
 
+
+# AI-Generated Quiz Models
+
+
+class GroqQuizConfig(models.Model):
+    DIFFICULTY_LEVELS = [
+        ('beginner', 'Beginner'),
+        ('intermediate', 'Intermediate'),
+        ('advanced', 'Advanced'),
+    ]
+
+    QUESTION_TYPES = [
+        ('multiple_choice', 'Multiple Choice'),
+        ('true_false', 'True/False'),
+        ('short_answer', 'Short Answer'),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    difficulty = models.CharField(max_length=20, choices=DIFFICULTY_LEVELS, default='beginner')
+    num_questions = models.IntegerField(default=10)
+    questions_per_session = models.IntegerField(default=20, help_text="Number of questions to show per quiz session")
+    question_types = models.JSONField(default=list)  # Store multiple question types
+    topics = models.TextField(blank=True, help_text="Comma-separated topics")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("AI Quiz Configuration")
+        verbose_name_plural = _("AI Quiz Configurations")
+
+    def __str__(self):
+        return f"{self.user.username} - {self.course.title} - {self.difficulty}"
+
+
+class GroqQuizSession(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    config = models.ForeignKey(GroqQuizConfig, on_delete=models.CASCADE)
+    questions = models.JSONField()  # Store all generated questions
+    session_questions = models.JSONField()  # Store questions for current session
+    current_question_index = models.IntegerField(default=0)
+    session_number = models.IntegerField(default=1)
+    score = models.IntegerField(default=0)
+    completed = models.BooleanField(default=False)
+    started_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("AI Quiz Session")
+        verbose_name_plural = _("AI Quiz Sessions")
+
+    def get_current_question(self):
+        if self.current_question_index < len(self.session_questions):
+            return self.session_questions[self.current_question_index]
+        return None
+
+    def can_continue_to_next_session(self):
+        """Check if there are more questions available for another session"""
+        total_questions_shown = (self.session_number - 1) * self.config.questions_per_session
+        total_questions_shown += len(self.session_questions)
+        return total_questions_shown < len(self.questions)
+
+    def start_next_session(self):
+        """Start the next session with remaining questions"""
+        if not self.can_continue_to_next_session():
+            return False
+
+        questions_per_session = self.config.questions_per_session
+        start_index = self.session_number * questions_per_session
+        end_index = start_index + questions_per_session
+
+        self.session_questions = self.questions[start_index:end_index]
+        self.current_question_index = 0
+        self.session_number += 1
+        self.save()
+        return True
+
+    def get_session_progress(self):
+        """Get progress information for the current session"""
+        current_session_progress = self.current_question_index / len(self.session_questions) * 100 if self.session_questions else 0
+        total_progress = self.get_total_progress()
+        return {
+            'session_progress': current_session_progress,
+            'total_progress': total_progress,
+            'session_number': self.session_number,
+            'questions_completed': self.get_questions_completed(),
+            'total_questions': len(self.questions)
+        }
+
+    def get_questions_completed(self):
+        """Get total questions answered across all sessions"""
+        return (self.session_number - 1) * self.config.questions_per_session + self.current_question_index
+
+    def get_total_progress(self):
+        """Get overall progress across all sessions"""
+        questions_completed = self.get_questions_completed()
+        if len(self.questions) == 0:
+            return 0
+        return (questions_completed / len(self.questions)) * 100
+
+    def submit_answer(self, answer):
+        current_question = self.get_current_question()
+        if not current_question:
+            return False
+
+        is_correct = self.check_answer(current_question, answer)
+
+        if is_correct:
+            self.score += 1
+
+        # Move to next question in current session
+        self.current_question_index += 1
+
+        # Check if session is complete
+        if self.current_question_index >= len(self.session_questions):
+            # Mark session complete for now - user can choose to continue
+            pass
+
+        self.save()
+        return is_correct
+
+    def check_answer(self, question, user_answer):
+        try:
+            question_type = question.get('type')
+            correct_answer = question.get('correct_answer')
+            
+            if question_type == 'multiple_choice':
+                # Convert to integers for comparison
+                return int(user_answer) == int(correct_answer)
+            elif question_type == 'true_false':
+                # Normalize string comparison
+                return str(user_answer).strip().lower() == str(correct_answer).strip().lower()
+            else:  # short_answer - use simple comparison for now
+                return self.evaluate_short_answer(question, user_answer)
+        except (ValueError, KeyError, TypeError) as e:
+            print(f"Error checking answer: {e}")
+            return False
+
+    def evaluate_short_answer(self, question, user_answer):
+        """Simple evaluation for short answers - can be enhanced later"""
+        try:
+            correct_answer = question.get('correct_answer', '').lower().strip()
+            user_answer_clean = user_answer.lower().strip()
+            
+            # Simple containment check - you can make this more sophisticated
+            return (user_answer_clean in correct_answer or 
+                    correct_answer in user_answer_clean or
+                    user_answer_clean == correct_answer)
+        except Exception as e:
+            print(f"Error evaluating short answer: {e}")
+            return False

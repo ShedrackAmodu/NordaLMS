@@ -1,11 +1,514 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block title %}Edit Comment | NexusLMS{% endblock title %}
+
 {% block content %}
-<div class="container">
-    <h2>Edit Comment</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn btn-primary">Save Changes</button>
-    </form>
+<style>
+:root {
+    --discussion-primary: #388E3C;
+    --discussion-secondary: #4CAF50;
+    --discussion-accent: #81C784;
+    --discussion-light: #F1F8E9;
+    --discussion-border: #E8F5E8;
+    --text-primary: #2E7D32;
+    --text-secondary: #558B2F;
+    --text-muted: #757575;
+    --shadow: 0 2px 8px rgba(56, 142, 60, 0.1);
+    --shadow-hover: 0 4px 16px rgba(56, 142, 60, 0.15);
+}
+
+/* Edit Form Container */
+.edit-comment-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.edit-comment-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.edit-comment-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+}
+
+.edit-header {
+    background: linear-gradient(135deg, var(--discussion-primary) 0%, var(--discussion-secondary) 100%);
+    color: white;
+    padding: 24px;
+    text-align: center;
+}
+
+.edit-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.edit-header p {
+    margin: 8px 0 0 0;
+    opacity: 0.9;
+    font-size: 0.875rem;
+}
+
+.edit-body {
+    padding: 32px;
+}
+
+.comment-preview {
+    background: var(--discussion-light);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    border: 1px solid var(--discussion-border);
+}
+
+.preview-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.preview-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--discussion-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.preview-author {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.preview-meta {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.preview-text {
+    color: #424242;
+    line-height: 1.6;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    display: block;
+    font-size: 0.875rem;
+}
+
+.form-control-edit {
+    border: 2px solid var(--discussion-border);
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 1rem;
+    line-height: 1.6;
+    transition: all 0.3s ease;
+    resize: vertical;
+    min-height: 120px;
+}
+
+.form-control-edit:focus {
+    border-color: var(--discussion-primary);
+    box-shadow: 0 0 0 0.2rem rgba(56, 142, 60, 0.25);
+    outline: none;
+}
+
+.form-control-edit::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--discussion-border);
+}
+
+.btn-edit-action {
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-cancel {
+    background: white;
+    color: var(--text-muted);
+    border: 1px solid var(--discussion-border);
+}
+
+.btn-cancel:hover {
+    background: #f8f9fa;
+    color: var(--text-primary);
+}
+
+.btn-save {
+    background: linear-gradient(135deg, var(--discussion-primary) 0%, var(--discussion-secondary) 100%);
+    color: white;
+}
+
+.btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(56, 142, 60, 0.3);
+}
+
+/* Character Counter */
+.char-counter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 0.75rem;
+}
+
+.char-count {
+    color: var(--text-muted);
+}
+
+.char-limit {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.char-limit.warning {
+    color: #ff9800;
+}
+
+.char-limit.exceeded {
+    color: #f44336;
+}
+
+/* Enhanced Form Features */
+.form-hints {
+    background: var(--discussion-light);
+    border: 1px solid var(--discussion-accent);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 8px;
+}
+
+.form-hints ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.form-hints li {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 4px;
+}
+
+/* Loading States */
+.loading-btn {
+    position: relative;
+    pointer-events: none;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .edit-comment-container {
+        padding: 20px 15px;
+    }
+
+    .edit-body {
+        padding: 20px;
+    }
+
+    .edit-actions {
+        flex-direction: column-reverse;
+    }
+
+    .btn-edit-action {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .comment-preview {
+        padding: 16px;
+    }
+
+    .preview-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+}
+
+/* Animations */
+.edit-comment-card {
+    animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Error States */
+.form-control-edit.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.invalid-feedback {
+    display: block;
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Success States */
+.form-control-edit.is-valid {
+    border-color: var(--discussion-primary);
+}
+
+.valid-feedback {
+    display: block;
+    color: var(--discussion-primary);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+</style>
+
+<div class="edit-comment-container">
+    <div class="edit-comment-card">
+        <div class="edit-header">
+            <h1><i class="fas fa-edit me-2"></i>Edit Comment</h1>
+            <p>Make changes to your comment below</p>
+        </div>
+
+        <div class="edit-body">
+            <!-- Comment Preview -->
+            <div class="comment-preview">
+                <div class="preview-header">
+                    <div class="preview-avatar">
+                        {% if comment.created_by.profile.avatar %}
+                            <img src="{{ comment.created_by.profile.avatar.url }}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                        {% else %}
+                            {{ comment.created_by.get_full_name|slice:":2"|upper }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="preview-author">{{ comment.created_by.get_full_name }}</div>
+                        <div class="preview-meta">Posted {{ comment.created_at|timesince }} ago</div>
+                    </div>
+                </div>
+                <div class="preview-text" id="previewText">{{ comment.message|linebreaks }}</div>
+            </div>
+
+            <!-- Edit Form -->
+            <form method="post" id="editCommentForm">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="{{ form.message.id_for_label }}" class="form-label">
+                        <i class="fas fa-comment-alt me-1"></i>
+                        Comment Content
+                    </label>
+                    <textarea
+                        class="form-control-edit"
+                        id="{{ form.message.id_for_label }}"
+                        name="message"
+                        rows="6"
+                        maxlength="1000"
+                        placeholder="Edit your comment..."
+                        required
+                    >{{ comment.message }}</textarea>
+
+                    {% if form.message.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.message.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Character Counter -->
+                <div class="char-counter">
+                    <span class="char-count">
+                        <span id="charCount">0</span> / <span id="charLimit">1000</span> characters
+                    </span>
+                </div>
+
+                <!-- Form Hints -->
+                <div class="form-hints">
+                    <strong>Tips for better comments:</strong>
+                    <ul>
+                        <li>Be clear and concise in your message</li>
+                        <li>Use proper grammar and punctuation</li>
+                        <li>Keep your comment respectful and constructive</li>
+                        <li>Ask questions if something is unclear</li>
+                    </ul>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="edit-actions">
+                    <a href="{% url 'discussion_list' comment.discussion.course.slug %}" class="btn-edit-action btn-cancel">
+                        <i class="fas fa-times me-1"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn-edit-action btn-save" id="saveBtn">
+                        <i class="fas fa-save me-1"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <div style="text-align: center; margin-top: 20px;">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'course_detail' comment.discussion.course.slug %}">{{ comment.discussion.course.title }}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'discussion_list' comment.discussion.course.slug %}">Discussions</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit Comment</li>
+            </ol>
+        </nav>
+    </div>
 </div>
+
+<script>
+// Character counter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.getElementById('{{ form.message.id_for_label }}');
+    const charCount = document.getElementById('charCount');
+    const charLimit = 1000;
+    const previewText = document.getElementById('previewText');
+    const saveBtn = document.getElementById('saveBtn');
+
+    function updateCounter() {
+        const count = textarea.value.length;
+        charCount.textContent = count;
+
+        // Update preview
+        previewText.innerHTML = textarea.value.replace(/\n/g, '<br>');
+
+        // Color coding
+        charCount.className = count > charLimit ? 'char-limit exceeded' :
+                            count > charLimit * 0.9 ? 'char-limit warning' : 'char-limit';
+
+        // Update save button
+        saveBtn.disabled = count === 0 || count > charLimit;
+    }
+
+    // Initialize counter
+    updateCounter();
+
+    // Update on input
+    textarea.addEventListener('input', updateCounter);
+
+    // Form submission handling
+    document.getElementById('editCommentForm').addEventListener('submit', function(e) {
+        const btnText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<div class="loading-spinner"></div>Saving...';
+        saveBtn.disabled = true;
+
+        // Re-enable button after 5 seconds (in case of error)
+        setTimeout(() => {
+            saveBtn.innerHTML = btnText;
+            saveBtn.disabled = false;
+        }, 5000);
+    });
+
+    // Auto-resize textarea
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 300) + 'px';
+    });
+
+    // Initial auto-resize
+    textarea.style.height = Math.min(textarea.scrollHeight, 300) + 'px';
+});
+</script>
+
+{% if messages %}
+<script>
+// Show success messages
+document.addEventListener('DOMContentLoaded', function() {
+    {% for message in messages %}
+        showToast('{{ message }}', '{{ message.tags|default:"info" }}');
+    {% endfor %}
+});
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `<i class="fas fa-check-circle me-2"></i>${message}`;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: var(--discussion-primary);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        z-index: 9999;
+        animation: slideInRight 0.3s ease-out;
+    `;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+</script>
+{% endif %}
+
 {% endblock %}

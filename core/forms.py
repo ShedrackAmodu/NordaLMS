@@ -4,12 +4,19 @@ from .models import NewsAndEvents, Session, Semester, SEMESTER
 
 # news and events
 class NewsAndEventsForm(forms.ModelForm):
+    event_date = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        required=False,
+        help_text="Optional date for scheduling events or news."
+    )
+
     class Meta:
         model = NewsAndEvents
         fields = (
             "title",
             "summary",
             "posted_as",
+            "event_date",
         )
 
     def __init__(self, *args, **kwargs):
@@ -17,6 +24,7 @@ class NewsAndEventsForm(forms.ModelForm):
         self.fields["title"].widget.attrs.update({"class": "form-control"})
         self.fields["summary"].widget.attrs.update({"class": "form-control"})
         self.fields["posted_as"].widget.attrs.update({"class": "form-control"})
+        self.fields["event_date"].widget.attrs.update({"class": "form-control"})
 
 
 class SessionForm(forms.ModelForm):

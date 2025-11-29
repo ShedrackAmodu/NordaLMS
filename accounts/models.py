@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser, UserManager
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Q
+
 from PIL import Image
 from course.models import Course, Upload, UploadVideo
 from django.db.models.signals import pre_save, post_delete, post_save
@@ -224,7 +225,3 @@ class DepartmentHead(models.Model):
 
     def __str__(self):
         return "{}".format(self.user)
-
-
-
-

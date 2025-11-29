@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ title }} | {% trans 'Learning management system' %}{% endblock title %}
+
+{% block content %}
+
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{% trans 'Courses' %}</li>
+    </ol>
+</nav>
+
+<div class="manage-wrap">
+    <a class="btn btn-primary" href="{% url 'course_add_admin' %}"><i class="fas fa-plus"></i>{% trans 'Add Course' %}</a>
+    <a class="btn btn-secondary" href="?export=csv{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}"><i class="fas fa-download"></i>{% trans 'Export CSV' %}</a>
+</div>
+
+<div class="title-1"><i class="fas fa-book"></i>{% trans 'Course Management' %}</div>
+<br><br>
+
+{% include 'snippets/messages.html' %}
+
+<form method="post">
+    {% csrf_token %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <input type="hidden" name="action" id="action">
+            <label for="bulk_action" class="form-label">Action:</label>
+            <select name="bulk_action" id="bulk_action" class="form-select d-inline-block w-auto">
+                <option value="">---------</option>
+                <option value="bulk_delete">Delete selected courses</option>
+                <option value="mark_elective">Mark as elective</option>
+                <option value="mark_core">Mark as core</option>
+            </select>
+            <button type="submit" class="btn btn-secondary ms-2">Go</button>
+        </div>
+    </div>
+
+    {% include 'snippets/filter_form.html' %}
+
+    <div class="table-responsive table-shadow table-light table-striped m-0 mt-4">
+        <div class="table-shadow">
+            <table class="table table-light">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="select-all"></th>
+                        <th>#</th>
+                        <th>{% trans 'Title' %}</th>
+                        <th>{% trans 'Code' %}</th>
+                        <th>{% trans 'Program' %}</th>
+                        <th>{% trans 'Level' %}</th>
+                        <th>{% trans 'Year' %}</th>
+                        <th>{% trans 'Semester' %}</th>
+                        <th>{% trans 'Elective' %}</th>
+                        <th>{% trans 'Actions' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in filter.qs %}
+                    <tr>
+                        <td><input type="checkbox" name="selected_courses" value="{{ course.pk }}"></td>
+                        <td>{{ forloop.counter }}.</td>
+                        <td>
+                            <a class="a-list" href="{% url 'course_detail' slug=course.slug %}">
+                                {{ course.title}}
+                            </a>
+                        </td>
+                        <td>{{ course.code }}</td>
+                        <td>{{ course.program.title }}</td>
+                        <td>{{ course.level }}</td>
+                        <td>{{ course.year }}</td>
+                        <td>{{ course.semester }}</td>
+                        <td>{% if course.is_elective %}Yes{% else %}No{% endif %}</td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa fa-ellipsis-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                  <li><a class="dropdown-item" href="{% url 'course_history' course.slug %}"><i class="unstyled me-2 fas fa-history"></i>{% trans 'History' %}</a></li>
+                                  <li><a class="dropdown-item" href="{% url 'course_edit_admin' slug=course.slug %}"><i class="unstyled me-2 fas fa-edit"></i>{% trans 'Edit' %}</a></li>
+                                  <li><a class="dropdown-item text-danger" href="{% url 'course_delete_admin' slug=course.slug %}"><i class="unstyled me-2 fas fa-trash-alt"></i>{% trans 'Delete' %}</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td>
+                      <span class="text-danger">
+                        {% trans 'No courses.' %}
+                        <a href="{% url 'course_add_admin' %}">
+                        <i class="primary" style="font-size: 22px;">
+                            {% trans 'Add course now.' %}
+                        </i>
+                        </a>
+                      </span>
+                    </td>
+                    <td></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% if is_paginated %}
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <span>Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ paginator.count }} entries</span>
+        <nav>
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page=1&{{ request.GET.urlencode }}">First</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">Previous</a></li>
+                {% endif %}
+                <li class="page-item"><span class="page-link">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">Next</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ paginator.num_pages }}&{{ request.GET.urlencode }}">Last</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</form>
+
+<script>
+    document.getElementById('select-all').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('input[name="selected_courses"]');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+</script>
+
+{% endblock content %}

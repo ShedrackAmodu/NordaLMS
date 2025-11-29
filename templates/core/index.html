@@ -1,83 +1,442 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{{ title }} | {% trans 'Learning management system' %}{% endblock title %}
+{% block title %}{% trans 'Home' %} | {% trans 'Learning management system' %}{% endblock title %}
 {% load static %}
 
 {% block content %}
 
 <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item active" aria-current="page">{% trans 'Home' %}</li>
+        <li class="breadcrumb-item active" aria-current="page">{% trans 'Home' %}</li>
     </ol>
 </nav>
 
-{% if request.user.is_superuser %}
 <div class="manage-wrap">
     <a class="btn btn-primary" href="{% url 'add_item' %}"><i class="fas fa-plus"></i>{% trans 'Add New Post' %}</a>
 </div>
-{% endif %}
 
 {% include 'snippets/messages.html' %}
 
-<div>
-    <div class="title-1">{% trans 'News' %} &amp; {% trans 'Events' %}</div>
-</div>
-
-<div class="col-md-2 ms-auto d-flex">
-    <div class="me-3">
-        <span class="color-indicator bg-primary"></span> {% trans 'News' %}
-    </div>
-    <div>
-        <span class="color-indicator bg-purple"></span> {% trans 'Events' %}
-    </div>
-</div>
-
-<div class="container-fluid">
-    {% if items %}
-    <div class="row">
-        {% for item in items %}
-        <div class="col-md-4 mb-4">
-            <div class="bg-white border">
-                <div class="card-header-ne {% if item.posted_as == 'News' %}{% trans 'news' %}{% else %}{% trans 'events' %}{% endif %} p-2">
-                    <span class="p-0">
-                        {{ item.title|title }}
-                    </span>
-                    {% if request.user.is_superuser %}
-                    <div class="dropstart">
-                        <button class="btn btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v text-white"></i>
+<div class="row">
+    <!-- Calendar Section -->
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>
+                        <span id="current-month-year">{{ month_name }} {{ current_year }}</span>
+                    </h5>
+                    <small class="opacity-75">{{ events_count }} event(s) this month</small>
+                </div>
+                <div class="calendar-nav">
+                    <a href="?year={{ prev_year }}&month={{ prev_month }}" class="btn btn-sm btn-light me-1" title="Previous Month">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <a href="?year={{ next_year }}&month={{ next_month }}" class="btn btn-sm btn-light" title="Next Month">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="calendar-container">
+                    {{ calendar_html|safe }}
+                </div>
+            </div>
+            <div class="card-footer bg-light">
+                <div class="d-flex justify-content-between">
+                    <a href="?year={{ today_year }}&month={{ today_month }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-calendar-day me-1"></i>Today
+                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-calendar me-1"></i>Jump to
                         </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{% url 'edit_post' pk=item.id %}"><i
-                                    class="unstyled me-2 fas fa-pencil-alt"></i>{% trans 'Edit' %}</a>
-                            <a class="dropdown-item" href="{% url 'delete_post' pk=item.id %}"><i
-                                    class="unstyled me-2 fas fa-trash-alt"></i>{% trans 'Delete' %}</a>
+                        <div class="dropdown-menu p-3" style="min-width: 250px;">
+                            <div class="mb-2">
+                                <label class="form-label small">Select Month & Year</label>
+                                <div class="d-flex gap-2">
+                                    <select class="form-select form-select-sm" id="jump-month">
+                                        {% for month_num, month_name in month_list %}
+                                            <option value="{{ month_num }}" {% if month_num == current_month %}selected{% endif %}>
+                                                {{ month_name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <select class="form-select form-select-sm" id="jump-year">
+                                        {% for year in year_range %}
+                                            <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>
+                                                {{ year }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-sm w-100" id="jump-go">Go</button>
                         </div>
                     </div>
-                    {% endif %}
                 </div>
-
-                <div class="p-2 my-2" style="min-height: 120px;">{{ item.summary }}</div>
-
-                <div class="bg-light p-1 small text-secondary text-end pe-3">
-                    <i class="fa fa-calendar small unstyled"></i>
-                    {{ item.updated_date|timesince }} {% trans 'ago' %}
-                </div>
-
             </div>
         </div>
-        {% endfor %}
+        <div class="mt-3">
+            <div class="d-flex flex-wrap">
+                <div class="me-3 mb-2">
+                    <span class="color-indicator bg-primary me-1"></span> {% trans 'News' %}
+                </div>
+                <div class="me-3 mb-2">
+                    <span class="color-indicator bg-purple me-1"></span> {% trans 'Events' %}
+                </div>
+                <div class="mb-2">
+                    <span class="color-indicator bg-warning me-1"></span> {% trans 'Today' %}
+                </div>
+            </div>
+        </div>
     </div>
 
-    {% else %}
-    <h4 class="text-center mt-5 py-5 text-muted">
-        <i class="fa-regular fa-folder-open me-2"></i>{% trans 'School news and events will appear here.' %}
-    </h4>
+    <!-- News & Events Section -->
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="title-1">{% trans 'News' %} & {% trans 'Events' %}</div>
+            <div class="text-muted small">
+                <i class="fas fa-filter me-1"></i>
+                <span id="current-filter">All Items</span>
+            </div>
+        </div>
 
-    {% endif %}
+        <div class="container-fluid">
+            {% if items %}
+            <div class="row">
+                {% for item in items %}
+                <div class="col-md-6 mb-4">
+                    <div class="bg-white border rounded shadow-sm h-100">
+                        <div class="card-header-ne {% if item.posted_as == 'News' %}news-header{% else %}events-header{% endif %} p-2 d-flex justify-content-between align-items-center">
+                            <span class="p-0 fw-bold">
+                                {{ item.title|title }}
+                            </span>
+                            {% if request.user.is_superuser %}
+                            <div class="dropstart">
+                                <button class="btn btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v text-white"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="{% url 'edit_post' pk=item.id %}"><i
+                                            class="unstyled me-2 fas fa-pencil-alt"></i>{% trans 'Edit' %}</a>
+                                    <a class="dropdown-item" href="{% url 'delete_post' pk=item.id %}"><i
+                                            class="unstyled me-2 fas fa-trash-alt"></i>{% trans 'Delete' %}</a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
 
+                        <div class="p-3 my-2 flex-grow-1">{{ item.summary }}</div>
+
+                        <div class="bg-light p-2 small text-secondary d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fa fa-calendar small unstyled me-1"></i>
+                                {{ item.updated_date|timesince }} {% trans 'ago' %}
+                            </span>
+                            {% if item.event_date %}
+                            <span class="badge {% if item.posted_as == 'News' %}bg-primary{% else %}bg-purple{% endif %}">
+                                <i class="fas fa-clock me-1"></i>{{ item.event_date }}
+                            </span>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <div class="text-center mt-5 py-5 text-muted">
+                <i class="fa-regular fa-folder-open fa-3x mb-3"></i>
+                <h4>{% trans 'School news and events will appear here.' %}</h4>
+                <p class="mt-2">Get started by <a href="{% url 'add_item' %}">adding your first post</a>.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
+<!-- Modal for Day Events -->
+<div class="modal fade" id="dayEventsModal" tabindex="-1" aria-labelledby="dayEventsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Content will be loaded via AJAX -->
+        </div>
+    </div>
+</div>
 
+<style>
+    /* Calendar Styling */
+    .calendar {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+
+    .calendar th {
+        background-color: #f8f9fa;
+        padding: 8px 5px;
+        text-align: center;
+        font-weight: 600;
+        border-bottom: 1px solid #dee2e6;
+        color: #6c757d;
+    }
+
+    .calendar td {
+        height: 70px;
+        vertical-align: top;
+        padding: 4px;
+        border: 1px solid #e9ecef;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .calendar td:hover {
+        background-color: #f8f9fa;
+        transform: scale(1.02);
+        z-index: 1;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .calendar .noday {
+        background-color: #f8f9fa;
+        cursor: default;
+    }
+
+    .calendar .noday:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .calendar .event-day {
+        background-color: #e7f1ff;
+        border: 2px solid #007bff;
+    }
+
+    .calendar .today {
+        background-color: #fff3cd !important;
+        font-weight: bold;
+        border: 2px solid #ffc107;
+    }
+
+    .calendar .date {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 2px;
+        font-size: 0.8rem;
+    }
+
+    .calendar .event {
+        display: block;
+        font-size: 0.7rem;
+        margin-bottom: 1px;
+        padding: 1px 4px;
+        border-radius: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    .calendar .event.news {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .calendar .event.event {
+        background-color: #6f42c1;
+        color: white;
+    }
+
+    .calendar .month {
+        background-color: #007bff;
+        color: white;
+        font-size: 1.1rem;
+        padding: 10px;
+    }
+
+    /* News & Events Cards */
+    .news-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+    }
+
+    .events-header {
+        background: linear-gradient(135deg, #6f42c1, #5530a3);
+        color: white;
+    }
+
+    .card-header-ne {
+        border-radius: 0.375rem 0.375rem 0 0;
+    }
+
+    .color-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+
+    /* Event badges in calendar */
+    .event-badge {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #007bff;
+    }
+
+    .event-badge.event {
+        background-color: #6f42c1;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .calendar td {
+            height: 50px;
+            font-size: 0.8rem;
+        }
+
+        .calendar .event {
+            font-size: 0.6rem;
+        }
+
+        .calendar .date {
+            font-size: 0.7rem;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date();
+    const currentYear = {{ current_year }};
+    const currentMonth = {{ current_month }};
+
+    // Highlight today's date in the calendar
+    highlightToday();
+
+    // Add click handlers to calendar days
+    setupCalendarDayClicks();
+
+    // Setup jump to functionality
+    setupJumpTo();
+
+    function highlightToday() {
+        const calendarCells = document.querySelectorAll('.calendar td:not(.noday)');
+
+        calendarCells.forEach(cell => {
+            const dateElement = cell.querySelector('.date');
+            if (dateElement) {
+                const day = parseInt(dateElement.textContent);
+
+                // Check if this cell represents today
+                if (day === today.getDate() &&
+                    currentMonth === today.getMonth() + 1 &&
+                    currentYear === today.getFullYear()) {
+                    cell.classList.add('today');
+                }
+            }
+        });
+    }
+
+    function setupCalendarDayClicks() {
+        const calendarDays = document.querySelectorAll('.calendar td:not(.noday)');
+
+        calendarDays.forEach(day => {
+            day.addEventListener('click', function() {
+                const dateElement = this.querySelector('.date');
+                if (dateElement) {
+                    const dayNumber = dateElement.textContent;
+
+                    // Show loading state
+                    const modal = new bootstrap.Modal(document.getElementById('dayEventsModal'));
+                    const modalContent = document.querySelector('#dayEventsModal .modal-content');
+                    modalContent.innerHTML = `
+                        <div class="modal-header">
+                            <h5 class="modal-title">Loading events...</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    `;
+                    modal.show();
+
+                    // Load events via AJAX
+                    fetch(`/calendar/${currentYear}/${currentMonth}/${dayNumber}/`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                        .then(response => response.text())
+                        .then(html => {
+                            modalContent.innerHTML = html;
+                        })
+                        .catch(error => {
+                            console.error('Error loading events:', error);
+                            modalContent.innerHTML = `
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Error</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="text-danger">Failed to load events. Please try again.</p>
+                                </div>
+                            `;
+                        });
+                }
+            });
+        });
+    }
+
+    function setupJumpTo() {
+        const jumpGoBtn = document.getElementById('jump-go');
+        if (jumpGoBtn) {
+            jumpGoBtn.addEventListener('click', function() {
+                const month = document.getElementById('jump-month').value;
+                const year = document.getElementById('jump-year').value;
+                window.location.href = `?year=${year}&month=${month}`;
+            });
+        }
+
+        // Generate year range (current year -5 to +5)
+        const yearSelect = document.getElementById('jump-year');
+        if (yearSelect && yearSelect.children.length === 0) {
+            const currentYear = new Date().getFullYear();
+            for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                if (i === {{ current_year }}) {
+                    option.selected = true;
+                }
+                yearSelect.appendChild(option);
+            }
+        }
+    }
+
+    // Add visual indicators for days with events
+    const eventDays = document.querySelectorAll('.calendar .event-day');
+    eventDays.forEach(day => {
+        const eventCount = day.querySelectorAll('.event').length;
+        if (eventCount > 0) {
+            const badge = document.createElement('div');
+            badge.className = 'event-badge';
+            if (day.querySelector('.event.event')) {
+                badge.classList.add('event');
+            }
+            badge.title = `${eventCount} event(s)`;
+            day.appendChild(badge);
+        }
+    });
+});
+</script>
 
 {% endblock content %}

@@ -1,0 +1,1312 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NexusLMS - The Future of Academic Excellence</title>
+
+    <!-- Bootstrap 5.3.2 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- FontAwesome 6.5.1 -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- AOS (Animate On Scroll) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+
+    <!-- Typed.js -->
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+
+    <style>
+      :root {
+        --primary: #1a5d1a;
+        --primary-dark: #0f3d0f;
+        --primary-light: #2e8b2e;
+        --secondary: #4a7c59;
+        --accent: #8db596;
+        --neutral: #f8f9fa;
+        --neutral-dark: #e9ecef;
+        --text: #2c3e50;
+        --text-light: #6c757d;
+        /* Light theme defaults */
+        --bg-primary: #fff;
+        --bg-secondary: #f8f9fa;
+        --text-primary: #2c3e50;
+        --text-secondary: #6c757d;
+        --border-color: #dee2e6;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+      }
+
+      [data-theme="dark"] {
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --text-primary: #ffffff;
+        --text-secondary: #cccccc;
+        --text-muted: #888888;
+        --border-color: #495057;
+        --shadow-color: rgba(0, 0, 0, 0.3);
+      }
+
+      [data-theme="dark"] .feature-card,
+      [data-theme="dark"] .persona-card {
+        background-color: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--border-color) !important;
+      }
+
+      [data-theme="dark"] .demo-container,
+      [data-theme="dark"] .navbar {
+        background-color: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+      }
+
+      [data-theme="dark"] .navbar-brand,
+      [data-theme="dark"] .navbar-brand span {
+        color: var(--primary) !important;
+      }
+
+      [data-theme="dark"] .nav-link {
+        color: var(--text-primary) !important;
+      }
+
+      [data-theme="dark"] .section-title h2,
+      [data-theme="dark"] .section-title p {
+        color: var(--text-primary) !important;
+      }
+
+      [data-theme="dark"] .demo-placeholder {
+        background-color: var(--bg-primary) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-secondary) !important;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Open Sans", sans-serif;
+        color: var(--text);
+        background-color: var(--bg-primary) !important;
+        overflow-x: hidden;
+        line-height: 1.6;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: "Poppins", sans-serif;
+        font-weight: 600;
+      }
+
+      /* Navbar Styles */
+      .navbar {
+        background-color: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+        padding: 15px 0;
+        transition: all 0.3s ease;
+      }
+
+      .navbar.navbar-scrolled {
+        background-color: rgba(255, 255, 255, 1);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.8rem;
+        color: var(--primary);
+      }
+
+      .navbar-brand span {
+        color: var(--primary);
+      }
+
+      .nav-link {
+        font-weight: 500;
+        margin: 0 10px;
+        color: var(--text);
+        transition: color 0.3s;
+      }
+
+      .nav-link:hover {
+        color: var(--primary);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border: none;
+        padding: 12px 28px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(26, 93, 26, 0.2);
+      }
+
+      .btn-primary:hover {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(26, 93, 26, 0.3);
+      }
+
+      .btn-outline-primary {
+        color: var(--primary);
+        border: 2px solid var(--primary);
+        background: transparent;
+        padding: 10px 26px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s;
+      }
+
+      .btn-outline-primary:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(26, 93, 26, 0.2);
+      }
+
+      /* Hero Section */
+      .hero-section {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+        color: white;
+        padding: 140px 0 100px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%230f3d0f' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        opacity: 0.3;
+      }
+
+      .hero-content h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        line-height: 1.2;
+      }
+
+      .hero-content p {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        opacity: 0.9;
+      }
+
+      .counter-container {
+        display: flex;
+        gap: 30px;
+        margin: 40px 0;
+      }
+
+      .counter-item {
+        text-align: center;
+      }
+
+      .counter-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+      }
+
+      .counter-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+
+      .hero-image {
+        position: relative;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+
+      /* Features Section */
+      .features-section {
+        padding: 100px 0;
+        background-color: var(--neutral);
+      }
+
+      .section-title {
+        text-align: center;
+        margin-bottom: 60px;
+      }
+
+      .section-title h2 {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 15px;
+      }
+
+      .section-title p {
+        font-size: 1.1rem;
+        color: var(--text-light);
+        max-width: 700px;
+        margin: 0 auto;
+      }
+
+      .feature-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--neutral-dark);
+      }
+
+      .feature-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(to bottom, var(--primary), var(--accent));
+        transition: width 0.3s;
+      }
+
+      .feature-card:hover::before {
+        width: 100%;
+        opacity: 0.05;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .feature-icon {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .feature-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: var(--primary);
+      }
+
+      .feature-card p {
+        color: var(--text-light);
+      }
+
+      /* Demo Section */
+      .demo-section {
+        padding: 100px 0;
+        background: linear-gradient(135deg, var(--neutral) 0%, var(--neutral-dark) 100%);
+      }
+
+      .demo-container {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--neutral-dark);
+      }
+
+      .demo-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--neutral-dark);
+      }
+
+      .demo-tab {
+        flex: 1;
+        text-align: center;
+        padding: 15px;
+        background: var(--neutral);
+        cursor: pointer;
+        transition: all 0.3s;
+        border-right: 1px solid var(--neutral-dark);
+        font-weight: 500;
+      }
+
+      .demo-tab:last-child {
+        border-right: none;
+      }
+
+      .demo-tab.active {
+        background: white;
+        color: var(--primary);
+        font-weight: 600;
+      }
+
+      .demo-content {
+        padding: 30px;
+        min-height: 400px;
+      }
+
+      .demo-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 340px;
+        background: var(--neutral);
+        border-radius: 8px;
+        color: var(--text-light);
+        font-size: 1.1rem;
+        border: 2px dashed var(--neutral-dark);
+      }
+
+
+
+      /* CTA Section */
+      .cta-section {
+        padding: 100px 0;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        text-align: center;
+      }
+
+      .cta-section h2 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+      }
+
+      .cta-section p {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        opacity: 0.9;
+      }
+
+      .cta-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn-light {
+        background: white;
+        color: var(--primary);
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+      }
+
+      .btn-light:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+      }
+
+      .btn-outline-light {
+        border: 2px solid white;
+        color: white;
+        padding: 10px 28px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s;
+        background: transparent;
+      }
+
+      .btn-outline-light:hover {
+        background: white;
+        color: var(--primary);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(255, 255, 255, 0.2);
+      }
+
+      /* Footer */
+      .footer {
+        background: var(--primary-dark);
+        color: white;
+        padding: 70px 0 30px;
+      }
+
+      .footer h4 {
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        color: white;
+      }
+
+      .footer-links {
+        list-style: none;
+        padding: 0;
+      }
+
+      .footer-links li {
+        margin-bottom: 10px;
+      }
+
+      .footer-links a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .footer-links a:hover {
+        color: white;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .social-links a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        color: white;
+        transition: all 0.3s;
+      }
+
+      .social-links a:hover {
+        background: white;
+        color: var(--primary);
+        transform: translateY(-3px);
+      }
+
+      .copyright {
+        text-align: center;
+        padding-top: 30px;
+        margin-top: 50px;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+      }
+
+      /* Limited Time Offer */
+      .limited-offer {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 15px 0;
+        text-align: center;
+        font-weight: 600;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .countdown {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 10px;
+      }
+
+      .countdown-item {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 8px 12px;
+        border-radius: 6px;
+        min-width: 60px;
+        backdrop-filter: blur(5px);
+      }
+
+      .countdown-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      .countdown-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        opacity: 0.8;
+      }
+
+      /* Persona Cards */
+      .persona-section {
+        padding: 80px 0;
+      }
+
+      .persona-card {
+        text-align: center;
+        padding: 30px 20px;
+        border-radius: 12px;
+        transition: all 0.3s;
+        height: 100%;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--neutral-dark);
+      }
+
+      .persona-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .persona-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: white;
+        font-size: 2rem;
+        box-shadow: 0 5px 15px rgba(26, 93, 26, 0.2);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .hero-content h1 {
+          font-size: 2.5rem;
+        }
+
+        .counter-container {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .cta-buttons {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .cta-buttons .btn {
+          width: 100%;
+          max-width: 300px;
+        }
+
+        .demo-tabs {
+          flex-direction: column;
+        }
+        
+        .section-title h2 {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Limited Time Offer Banner -->
+    <div class="limited-offer">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <i class="fas fa-bolt me-2"></i> Limited Time: Get 3 Months Free
+            with Annual Plan!
+          </div>
+          <div class="col-md-4">
+            <div class="countdown">
+              <div class="countdown-item">
+                <div class="countdown-number" id="days">07</div>
+                <div class="countdown-label">Days</div>
+              </div>
+              <div class="countdown-item">
+                <div class="countdown-number" id="hours">23</div>
+                <div class="countdown-label">Hours</div>
+              </div>
+              <div class="countdown-item">
+                <div class="countdown-number" id="minutes">59</div>
+                <div class="countdown-label">Minutes</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <img
+            src="{% static 'images/logo.png' %}"
+            alt="NexusLMS"
+            style="height: 35px; margin-right: 8px"
+          />
+          Nexus<span>LMS</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#features">Features</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#demo">Demo</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#personas">For You</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'pricing' %}">Pricing</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'about' %}">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'contact' %}">Contact</a>
+            </li>
+            <li class="nav-item ms-2">
+              <button class="btn btn-light me-2" id="theme-toggle" onclick="toggleTheme()">
+                <i class="fas fa-moon"></i>
+              </button>
+            </li>
+            <li class="nav-item ms-2">
+              <a class="btn btn-outline-primary" href="{% url 'login' %}"
+                >Login</a
+              >
+            </li>
+            <li class="nav-item ms-2">
+              <a class="btn btn-primary" href="{% url 'register' %}"
+                >Get Started</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6" data-aos="fade-right">
+            <div class="hero-content">
+              <h1>
+                Transform Your Academic Experience with
+                <span class="typed-text"></span>
+              </h1>
+              <p>
+                The comprehensive Learning Management System that elevates
+                education for students, lecturers, and institutions.
+              </p>
+
+              <div class="counter-container">
+                <div class="counter-item">
+                  <div class="counter-number" data-count="12500">0</div>
+                  <div class="counter-label">Active Students</div>
+                </div>
+                <div class="counter-item">
+                  <div class="counter-number" data-count="450">0</div>
+                  <div class="counter-label">Expert Lecturers</div>
+                </div>
+                <div class="counter-item">
+                  <div class="counter-number" data-count="98">0</div>
+                  <div class="counter-label">Satisfaction Rate</div>
+                </div>
+              </div>
+
+              <div class="cta-buttons">
+                <a href="{% url 'register' %}" class="btn btn-light me-3"
+                  >Start Free Trial</a
+                >
+                <a href="#demo" class="btn btn-outline-light">View Live Demo</a>
+              </div>
+
+              <p class="mt-3 small">
+                <i class="fas fa-shield-alt me-2"></i> Secure & GDPR Compliant •
+                14-Day Free Trial • No Credit Card Required
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-6" data-aos="fade-left">
+            <div class="hero-image text-center">
+              <img
+                src="{% static 'images/nl.png' %}"
+                alt="NexusLMS Dashboard"
+                class="img-fluid rounded shadow-lg"
+                style="border: 1px solid rgba(255,255,255,0.1);"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Personas Section -->
+    <section id="personas" class="persona-section">
+      <div class="container">
+        <div class="section-title" data-aos="fade-up">
+          <h2>Designed For Every Academic Role</h2>
+          <p>
+            NexusLMS provides tailored experiences for all members of your
+            educational ecosystem
+          </p>
+        </div>
+
+        <div class="row">
+          <div
+            class="col-lg-3 col-md-6 mb-4"
+            data-aos="fade-up"
+            data-aos-delay="100"
+          >
+            <div class="persona-card">
+              <div class="persona-icon">
+                <i class="fas fa-user-graduate"></i>
+              </div>
+              <h3>Students</h3>
+              <p>
+                From Beginner to Professional levels with personalized learning
+                paths and progress tracking.
+              </p>
+              <a
+                href="{% url 'student_features' %}"
+                class="btn btn-outline-primary mt-3"
+                >Explore Student Features</a
+              >
+            </div>
+          </div>
+
+          <div
+            class="col-lg-3 col-md-6 mb-4"
+            data-aos="fade-up"
+            data-aos-delay="200"
+          >
+            <div class="persona-card">
+              <div class="persona-icon">
+                <i class="fas fa-chalkboard-teacher"></i>
+              </div>
+              <h3>Lecturers</h3>
+              <p>
+                Course management, automated grading, and advanced analytics to
+                enhance teaching effectiveness.
+              </p>
+              <a
+                href="{% url 'lecturer_features' %}"
+                class="btn btn-outline-primary mt-3"
+                >Explore Lecturer Features</a
+              >
+            </div>
+          </div>
+
+          <div
+            class="col-lg-3 col-md-6 mb-4"
+            data-aos="fade-up"
+            data-aos-delay="300"
+          >
+            <div class="persona-card">
+              <div class="persona-icon">
+                <i class="fas fa-user-friends"></i>
+              </div>
+              <h3>Parents</h3>
+              <p>
+                Monitor student progress, communicate with lecturers, and stay
+                informed with real-time updates.
+              </p>
+              <a
+                href="{% url 'parent_features' %}"
+                class="btn btn-outline-primary mt-3"
+                >Explore Parent Features</a
+              >
+            </div>
+          </div>
+
+          <div
+            class="col-lg-3 col-md-6 mb-4"
+            data-aos="fade-up"
+            data-aos-delay="400"
+          >
+            <div class="persona-card">
+              <div class="persona-icon">
+                <i class="fas fa-user-tie"></i>
+              </div>
+              <h3>Department Heads</h3>
+              <p>
+                Comprehensive oversight, resource allocation, and institutional
+                analytics for strategic planning.
+              </p>
+              <a
+                href="{% url 'admin_features' %}"
+                class="btn btn-outline-primary mt-3"
+                >Explore Admin Features</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+      <div class="container">
+        <div class="section-title" data-aos="fade-up">
+          <h2>Powerful Features for Modern Education</h2>
+          <p>
+            NexusLMS provides everything you need to manage courses, track
+            progress, and enhance learning outcomes
+          </p>
+        </div>
+
+        <div class="row">
+          <div
+            class="col-lg-4 col-md-6 mb-4"
+            data-aos="fade-up"
+            data-aos-delay="100"
+          >
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-graduation-cap"></i>
+              </div>
+              <h3>Smart Course Management</h3>
+              <p>
+                Easily create, organize, and manage courses with add/drop
+                functionality, multi-semester support, and department-specific
+                allocations.
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="col-lg-4 col-md-6 mb-4"
+            data-aos="fade-up"
+            data-aos-delay="200"
+          >
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-tasks"></i>
+              </div>
+              <h3>Advanced Quiz System</h3>
+              <p>
+                Automated quiz generation with multiple question types, timed
+                assessments, and comprehensive result tracking with analytics.
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="col-lg-4 col-md-6 mb-4"
+            data-aos="fade-up"
+            data-aos-delay="300"
+          >
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <h3>Real-time Analytics</h3>
+              <p>
+                Monitor student performance, attendance patterns, and
+                demographic insights with our Janux dashboard technology.
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="col-lg-4 col-md-6 mb-4"
+            data-aos="fade-up"
+            data-aos-delay="100"
+          >
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <h3>Parent Portal</h3>
+              <p>
+                Keep parents informed with secure monitoring dashboards,
+                progress reports, and direct communication channels.
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="col-lg-4 col-md-6 mb-4"
+            data-aos="fade-up"
+            data-aos-delay="200"
+          >
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <h3>Academic Calendar</h3>
+              <p>
+                Integrated calendar system with event associations, session
+                management, and automated notifications.
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="col-lg-4 col-md-6 mb-4"
+            data-aos="fade-up"
+            data-aos-delay="300"
+          >
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-file-pdf"></i>
+              </div>
+              <h3>Export & Reports</h3>
+              <p>
+                Generate comprehensive PDF reports for grades, attendance, and
+                institutional analytics with one click.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-5" data-aos="fade-up">
+          <a href="#features" class="btn btn-primary btn-lg"
+            >Explore All Features</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Demo Section -->
+    <section id="demo" class="demo-section">
+      <div class="container">
+        <div class="section-title" data-aos="fade-up">
+          <h2>Experience NexusLMS in Action</h2>
+          <p>
+            Explore our interactive demos to see how NexusLMS transforms
+            academic management
+          </p>
+        </div>
+
+        <div class="demo-container" data-aos="fade-up">
+          <div class="demo-tabs">
+            <div class="demo-tab active" data-tab="dashboard">Dashboard</div>
+            <div class="demo-tab" data-tab="courses">Course Management</div>
+            <div class="demo-tab" data-tab="quizzes">Quiz System</div>
+            <div class="demo-tab" data-tab="analytics">Analytics</div>
+          </div>
+
+          <div class="demo-content">
+            <div class="demo-placeholder" id="dashboard-demo">
+              <div class="text-center">
+                <i class="fas fa-tachometer-alt fa-3x mb-3 text-primary"></i>
+                <h4>Interactive Dashboard Preview</h4>
+                <p>
+                  Personalized dashboards for students, lecturers, and
+                  department heads
+                </p>
+                <button class="btn btn-primary mt-3">
+                  Launch Interactive Demo
+                </button>
+              </div>
+            </div>
+
+            <div class="demo-placeholder d-none" id="courses-demo">
+              <div class="text-center">
+                <i class="fas fa-book fa-3x mb-3 text-primary"></i>
+                <h4>Course Management System</h4>
+                <p>
+                  Add/drop functionality, semester tracking, and department
+                  allocations
+                </p>
+                <button class="btn btn-primary mt-3">Try Course Builder</button>
+              </div>
+            </div>
+
+            <div class="demo-placeholder d-none" id="quizzes-demo">
+              <div class="text-center">
+                <i class="fas fa-question-circle fa-3x mb-3 text-primary"></i>
+                <h4>Advanced Quiz Builder</h4>
+                <p>
+                  Multiple question types, automated grading, and result
+                  analytics
+                </p>
+                <button class="btn btn-primary mt-3">Create Sample Quiz</button>
+              </div>
+            </div>
+
+            <div class="demo-placeholder d-none" id="analytics-demo">
+              <div class="text-center">
+                <i class="fas fa-chart-bar fa-3x mb-3 text-primary"></i>
+                <h4>Real-time Analytics</h4>
+                <p>
+                  Performance tracking, demographic insights, and institutional
+                  reporting
+                </p>
+                <button class="btn btn-primary mt-3">
+                  View Sample Reports
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+      <div class="container">
+        <div data-aos="fade-up">
+          <h2>Ready to Transform Your Institution?</h2>
+          <p>
+            Join thousands of educators already using NexusLMS to enhance their
+            academic programs and student outcomes.
+          </p>
+
+          <div class="cta-buttons">
+            <a href="{% url 'register' %}" class="btn btn-light btn-lg"
+              >Start Your Free Trial</a
+            >
+            <a href="{% url 'contact' %}" class="btn btn-outline-light btn-lg"
+              >Schedule a Demo</a
+            >
+          </div>
+
+          <p class="mt-4 small">
+            <i class="fas fa-lock me-2"></i>Secure & GDPR Compliant •
+            <i class="fas fa-shield-alt me-2"></i>Enterprise-grade Security •
+            <i class="fas fa-clock me-2"></i>14-day Free Trial
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4 mb-4">
+            <h4>NexusLMS</h4>
+            <p>
+              The future of academic excellence. Transforming education through
+              innovative technology and user-centered design.
+            </p>
+
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook-f"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-linkedin-in"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+          </div>
+
+          <div class="col-lg-2 col-md-4 mb-4">
+            <h4>Quick Links</h4>
+            <ul class="footer-links">
+              <li><a href="#features">Features</a></li>
+              <li><a href="#demo">Demo</a></li>
+              <li><a href="{% url 'pricing' %}">Pricing</a></li>
+              <li><a href="{% url 'about' %}">About Us</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-2 col-md-4 mb-4">
+            <h4>Resources</h4>
+            <ul class="footer-links">
+              <li><a href="#">Documentation</a></li>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Support</a></li>
+              <li><a href="#">API</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-2 col-md-4 mb-4">
+            <h4>Legal</h4>
+            <ul class="footer-links">
+              <li><a href="{% url 'privacy' %}">Privacy Policy</a></li>
+              <li><a href="{% url 'terms' %}">Terms of Service</a></li>
+              <li><a href="{% url 'cookies' %}">Cookie Policy</a></li>
+              <li><a href="{% url 'gdpr' %}">GDPR</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-2 mb-4">
+            <h4>Contact</h4>
+            <ul class="footer-links">
+              <li>
+                <a href="mailto:support@nexuslms.com">support@nexuslms.com</a>
+              </li>
+              <li><a href="tel:+1234567890">+1 (234) 567-890</a></li>
+              <li>123 Education St.</li>
+              <li>Academic City, AC 12345</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="copyright">&copy; 2023 NexusLMS. All rights reserved.</div>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+      // Initialize AOS (Animate On Scroll)
+      AOS.init({
+        duration: 1000,
+        once: true,
+        offset: 100,
+      });
+
+      // Typed.js for hero text animation
+      document.addEventListener("DOMContentLoaded", function () {
+        var typed = new Typed(".typed-text", {
+          strings: [
+            "NexusLMS",
+            "Academic Excellence",
+            "Modern Education",
+            "Student Success",
+          ],
+          typeSpeed: 50,
+          backSpeed: 30,
+          backDelay: 2000,
+          loop: true,
+        });
+      });
+
+      // Counter Animation
+      $(document).ready(function () {
+        $(".counter-number").each(function () {
+          $(this)
+            .prop("Counter", 0)
+            .animate(
+              {
+                Counter: $(this).text(),
+              },
+              {
+                duration: 2000,
+                easing: "swing",
+                step: function (now) {
+                  $(this).text(Math.ceil(now));
+                },
+              }
+            );
+        });
+
+        // Demo Tabs
+        $(".demo-tab").click(function () {
+          $(".demo-tab").removeClass("active");
+          $(this).addClass("active");
+
+          var tabId = $(this).data("tab");
+          $(".demo-placeholder").addClass("d-none");
+          $("#" + tabId + "-demo").removeClass("d-none");
+        });
+
+        // Navbar background on scroll
+        $(window).scroll(function () {
+          if ($(window).scrollTop() > 50) {
+            $(".navbar").addClass("navbar-scrolled");
+          } else {
+            $(".navbar").removeClass("navbar-scrolled");
+          }
+        });
+
+        // Countdown Timer
+        function updateCountdown() {
+          const now = new Date();
+          const target = new Date();
+          target.setDate(now.getDate() + 7); // 7 days from now
+
+          const diff = target - now;
+
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor(
+            (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+          );
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+          document.getElementById("days").textContent = days
+            .toString()
+            .padStart(2, "0");
+          document.getElementById("hours").textContent = hours
+            .toString()
+            .padStart(2, "0");
+          document.getElementById("minutes").textContent = minutes
+            .toString()
+            .padStart(2, "0");
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 60000);
+      });
+
+      // Theme toggle function
+      function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        const icon = document.querySelector('#theme-toggle i');
+        const button = document.getElementById('theme-toggle');
+
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+
+        if (newTheme === 'dark') {
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+          button.classList.remove('btn-light');
+          button.classList.add('btn-outline-light');
+        } else {
+          icon.classList.remove('fa-sun');
+          icon.classList.add('fa-moon');
+          button.classList.remove('btn-outline-light');
+          button.classList.add('btn-light');
+        }
+      }
+
+      // Initialize theme on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const icon = document.querySelector('#theme-toggle i');
+        const button = document.getElementById('theme-toggle');
+        if (savedTheme === 'dark') {
+          if (icon) {
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+          }
+          if (button) {
+            button.classList.remove('btn-light');
+            button.classList.add('btn-outline-light');
+          }
+        } else {
+          if (icon) {
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+          }
+          if (button) {
+            button.classList.remove('btn-outline-light');
+            button.classList.add('btn-light');
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
