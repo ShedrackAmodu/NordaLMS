@@ -11,7 +11,7 @@ from django.views.generic import ListView
 
 from accounts.decorators import admin_required, lecturer_required, student_required, dep_head_required
 from accounts.models import Student, DepartmentHead
-from core.models import Semester
+from core.models import Semester, ActivityLog
 from course.filters import CourseAllocationFilter, CourseFilter, ProgramFilter
 from course.forms import (
     CourseAddForm,

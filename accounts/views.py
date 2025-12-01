@@ -515,6 +515,144 @@ def edit_student_program(request, pk):
     )
 
 
+@login_required
+@admin_required
+def render_lecturer_pdf_list(request):
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib.enums import TA_CENTER
+    from reportlab.lib import colors
+    from reportlab.lib.units import inch
+    from django.conf import settings
+    from django.core.files.storage import FileSystemStorage
+
+    lecturers = User.objects.filter(is_lecturer=True).order_by('username')
+    fname = "lecturers_list.pdf"
+    flocation = settings.MEDIA_ROOT + "/lecturer_list/" + fname
+
+    doc = SimpleDocTemplate(flocation, rightMargin=15, leftMargin=15, topMargin=15, bottomMargin=15)
+    styles = getSampleStyleSheet()
+    Story = []
+
+    style = styles["Normal"]
+    style.alignment = TA_CENTER
+    style.fontName = "Helvetica-Bold"
+    style.fontSize = 14
+    title = Paragraph("Lecturers List", style)
+    Story.append(title)
+    Story.append(Spacer(1, 0.5 * inch))
+
+    header = [("ID No.", "Full Name", "Email", "Phone", "Address", "Active")]
+    table_header = Table(header, colWidths=[1.5*inch, 2.5*inch, 3*inch, 1.5*inch, 2*inch, 1*inch])
+    table_header.setStyle(
+        TableStyle([
+            ("BACKGROUND", (0, 0), (-1, -1), colors.grey),
+            ("TEXTCOLOR", (0, 0), (-1, -1), colors.white),
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+            ("BOX", (0, 0), (-1, -1), 1, colors.black),
+        ])
+    )
+    Story.append(table_header)
+
+    for lecturer in lecturers:
+        data = [(
+            lecturer.username,
+            lecturer.get_full_name,
+            lecturer.email,
+            lecturer.phone or "",
+            lecturer.address or "",
+            "Yes" if lecturer.is_active else "No",
+        )]
+        t_body = Table(data, colWidths=[1.5*inch, 2.5*inch, 3*inch, 1.5*inch, 2*inch, 1*inch])
+        t_body.setStyle(
+            TableStyle([
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.black),
+                ("BOX", (0, 0), (-1, -1), 0.25, colors.black),
+                ("ALIGN", (0, 5), (0, 5), "CENTER"),
+            ])
+        )
+        Story.append(t_body)
+
+    doc.build(Story)
+
+    fs = FileSystemStorage(settings.MEDIA_ROOT + "/lecturer_list")
+    with fs.open(fname) as pdf:
+        response = HttpResponse(pdf, content_type="application/pdf")
+        response["Content-Disposition"] = "inline; filename=" + fname
+        return response
+    return HttpResponse("Error generating PDF")
+
+
+@login_required
+@admin_required
+def render_student_pdf_list(request):
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib.enums import TA_CENTER
+    from reportlab.lib import colors
+    from reportlab.lib.units import inch
+    from django.conf import settings
+    from django.core.files.storage import FileSystemStorage
+
+    students = Student.objects.all().order_by('student__username')
+    fname = "students_list.pdf"
+    flocation = settings.MEDIA_ROOT + "/student_list/" + fname
+
+    doc = SimpleDocTemplate(flocation, rightMargin=15, leftMargin=15, topMargin=15, bottomMargin=15)
+    styles = getSampleStyleSheet()
+    Story = []
+
+    style = styles["Normal"]
+    style.alignment = TA_CENTER
+    style.fontName = "Helvetica-Bold"
+    style.fontSize = 14
+    title = Paragraph("Students List", style)
+    Story.append(title)
+    Story.append(Spacer(1, 0.5 * inch))
+
+    header = [("ID No.", "Full Name", "Email", "Phone", "Program", "Level", "Active")]
+    table_header = Table(header, colWidths=[1.5*inch, 2.5*inch, 3*inch, 1.5*inch, 2*inch, 1*inch, 1*inch])
+    table_header.setStyle(
+        TableStyle([
+            ("BACKGROUND", (0, 0), (-1, -1), colors.grey),
+            ("TEXTCOLOR", (0, 0), (-1, -1), colors.white),
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+            ("BOX", (0, 0), (-1, -1), 1, colors.black),
+        ])
+    )
+    Story.append(table_header)
+
+    for student in students:
+        data = [(
+            student.student.username,
+            student.student.get_full_name,
+            student.student.email,
+            student.student.phone or "",
+            student.program.name if hasattr(student.program, 'name') else "",
+            student.level,
+            "Yes" if student.student.is_active else "No",
+        )]
+        t_body = Table(data, colWidths=[1.5*inch, 2.5*inch, 3*inch, 1.5*inch, 2*inch, 1*inch, 1*inch])
+        t_body.setStyle(
+            TableStyle([
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.black),
+                ("BOX", (0, 0), (-1, -1), 0.25, colors.black),
+                ("ALIGN", (5, 0), (5, 0), "CENTER"),
+                ("ALIGN", (6, 0), (6, 0), "CENTER"),
+            ])
+        )
+        Story.append(t_body)
+
+    doc.build(Story)
+
+    fs = FileSystemStorage(settings.MEDIA_ROOT + "/student_list")
+    with fs.open(fname) as pdf:
+        response = HttpResponse(pdf, content_type="application/pdf")
+        response["Content-Disposition"] = "inline; filename=" + fname
+        return response
+    return HttpResponse("Error generating PDF")
+
+
 # ########################################################
 # Parent Views
 # ########################################################
